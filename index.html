@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>漢字マスター - Kanji Mastery</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: sans-serif;
+      background: white;
+      color: black;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid black;
+    }
+    
+    h1 {
+      font-size: 24px;
+    }
+    
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .tab-btn {
+      padding: 8px 16px;
+      background: white;
+      border: 1px solid black;
+      cursor: pointer;
+    }
+    
+    .tab-btn.active {
+      background: black;
+      color: white;
+    }
+    
+    .page {
+      display: none;
+    }
+    
+    .page.active {
+      display: block;
+    }
+    
+    .legend {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid black;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+    }
+    
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border: 1px solid black;
+    }
+    
+    .kanji-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+      gap: 2px;
+      border: 1px solid black;
+      padding: 10px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    
+    .kanji-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+    }
+    
+    .kanji-cell:hover {
+      border: 2px solid black;
+    }
+    
+    .kanji-cell.unknown { background: black; color: black; }
+    .kanji-cell.learning { background: #333; color: black; }
+    .kanji-cell.familiar { background: #666; color: black; }
+    .kanji-cell.known { background: #999; color: black; }
+    .kanji-cell.mastered { background: white; color: black; }
+    
+    .study-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .control-group {
+      min-width: 200px;
+    }
+    
+    .control-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    
+    select, button {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid black;
+      background: white;
+      color: black;
+      cursor: pointer;
+    }
+    
+    button {
+      background: black;
+      color: white;
+    }
+    
+    button:hover {
+      background: #333;
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .study-card {
+      border: 2px solid black;
+      padding: 40px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .answer-toggles {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .toggle-btn {
+      padding: 6px 12px;
+      border: 1px solid black;
+      background: white;
+      color: black;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .toggle-btn.active {
+      background: black;
+      color: white;
+    }
+    
+    .kanji-display {
+      font-size: 120px;
+      margin-bottom: 20px;
+    }
+    
+    .kanji-info {
+      display: none;
+    }
+    
+    .kanji-info.visible {
+      display: block;
+    }
+    
+    .stroke-order {
+      font-size: 120px;
+      margin-bottom: 20px;
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .stroke-order svg {
+      width: 200px;
+      height: 200px;
+      display: block;
+    }
+    
+    .reading {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    
+    .meaning {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    
+    .examples {
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .example-item {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-left: 2px solid black;
+    }
+    
+    .example-ja {
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+    
+    .example-en {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .show-answer-btn {
+      max-width: 300px;
+    }
+    
+    .rating-buttons {
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+    
+    .rating-buttons.visible {
+      display: grid;
+    }
+    
+    .rating-btn {
+      padding: 10px;
+      border: 2px solid black;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      border: 1px solid black;
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      display: block;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    
+    .no-kanji {
+      text-align: center;
+      padding: 40px 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>漢字マスター</h1>
+      <div class="nav-tabs">
+        <button class="tab-btn active" data-page="grid">Grid View</button>
+        <button class="tab-btn" data-page="study">Study Mode</button>
+      </div>
+    </header>
+    
+    <!-- Grid Page -->
+    <div id="grid-page" class="page active">
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: black"></div>
+          <span>Unknown</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #333"></div>
+          <span>Learning</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #666"></div>
+          <span>Familiar</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #999"></div>
+          <span>Known</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: white"></div>
+          <span>Mastered</span>
+        </div>
+      </div>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-value" id="total-kanji">0</span>
+          <span class="stat-label">Total Kanji</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="mastered-count">0</span>
+          <span class="stat-label">Mastered</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="learning-count">0</span>
+          <span class="stat-label">In Progress</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="unknown-count">0</span>
+          <span class="stat-label">Unknown</span>
+        </div>
+      </div>
+      
+      <div class="kanji-grid" id="kanji-grid"></div>
+    </div>
+    
+    <!-- Study Page -->
+    <div id="study-page" class="page">
+      <div class="study-controls">
+        <div class="control-group">
+          <label>Filter by Level</label>
+          <select id="level-filter" onchange="app.startStudy()">
+            <option value="all">All Levels</option>
+            <option value="unknown">Unknown Only</option>
+            <option value="learning">Learning Only</option>
+            <option value="familiar">Familiar Only</option>
+            <option value="known">Known Only</option>
+            <option value="review">Review Due</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Sort By</label>
+          <select id="sort-option" onchange="app.startStudy()">
+            <option value="random">Random</option>
+            <option value="frequency">Frequency</option>
+            <option value="level">Proficiency Level</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="study-card" id="study-card">
+        <div class="study-options" style="margin-bottom: 20px;">
+          <label style="margin-right: 15px; cursor: pointer;">
+            <input type="checkbox" id="show-kun" checked onchange="app.saveTogglePreferences(); app.updateDisplay()"> 訓読み (Kun)
+          </label>
+          <label style="margin-right: 15px; cursor: pointer;">
+            <input type="checkbox" id="show-on" checked onchange="app.saveTogglePreferences(); app.updateDisplay()"> 音読み (On)
+          </label>
+          <label style="margin-right: 15px; cursor: pointer;">
+            <input type="checkbox" id="show-meaning" checked onchange="app.saveTogglePreferences(); app.updateDisplay()"> Meaning
+          </label>
+          <label style="margin-right: 15px; cursor: pointer;">
+            <input type="checkbox" id="show-examples" onchange="app.saveTogglePreferences(); app.updateDisplay()"> Examples
+          </label>
+          <label style="cursor: pointer;">
+            <input type="checkbox" id="show-stroke-order" onchange="app.saveTogglePreferences(); app.updateDisplay()"> Stroke Order
+          </label>
+        </div>
+        
+        <div class="kanji-display" id="current-kanji"></div>
+        <div class="stroke-order" id="stroke-order" style="display: none;"></div>
+        
+        <button class="show-answer-btn" id="show-answer-btn" onclick="app.showAnswer()">
+          Show Answer
+        </button>
+        
+        <div class="kanji-info" id="kanji-info">
+          <div class="reading" id="kanji-reading"></div>
+          <div class="meaning" id="kanji-meaning"></div>
+          <div class="examples" id="kanji-examples"></div>
+        </div>
+        
+        <div class="rating-buttons" id="rating-buttons">
+          <button class="rating-btn" data-rating="0" onclick="app.rateCard(0)">
+            Again<br><small>Learning</small>
+          </button>
+          <button class="rating-btn" data-rating="1" onclick="app.rateCard(1)">
+            Hard<br><small>Familiar</small>
+          </button>
+          <button class="rating-btn" data-rating="2" onclick="app.rateCard(2)">
+            Good<br><small>Known</small>
+          </button>
+          <button class="rating-btn" data-rating="3" onclick="app.rateCard(3)">
+            Easy<br><small>Mastered</small>
+          </button>
+        </div>
+      </div>
+      
+      <div class="no-kanji" id="no-kanji" style="display: none;">
+        <p>No kanji available for the selected filters.</p>
+        <p style="margin-top: 1rem;">Try adjusting your filter settings.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const KANJI_LIST = `一二仁三四五伍六七八九十百千万萬億憶兆眺銚挑跳零令冷鈴玲齢歯裁年父釜母子孜孤孫爪孔了兄況弟第弔姉市妹黒紫此柴雌紺甘青晴清請精情靖静赤跡緑録禄黄横白泊柏伯拍迫舶粕口品器吸及扱級喫吹炊噴墳憤吐味未嘆喝渇呪唆嘱属呼唄吟今琴鳴唱昌晶叫赳喚換唯維咲哨号呉娯誤否舌后唇辰娠振震哲啓国図園遠団圏巻券拳回囲井耕丼固個困囚日旧旭曜昨酢作詐映英央暗闇暁尭曙署暑諸暖昇升弁景京影易是書音響郷香晋替暫斬田男胃異累塁畳思留画町丁頂訂庁略酪絡落畔半伴判卑碑鬼魔醜塊魂魏魅魁曲典豊目眼限瞳童瞬睡垂眠民睦県自鼻買罪罰羅罷覇覆腹複復省少炒小看督貝贈曽僧層増憎財才材賭敗賠培倍陪販反板坂飯阪版片貯賄賊購溝構講貧費貴貨化花靴革賃貸代袋賀加架嘉貿賛質賢堅員題願頑顔彦額類須頻歩順預予野頭豆逗顕顧雇月勝脚却胴腰要腕胎台怠膳善膨脂旨指胸臓蔵腸騰胞包泡抱砲飽肥豚肝干汗幹刊胆担脇脅協肺脳悩脈膜服脱肌机飢背肯骨腎火灯災燃然焼炉燥操藻繰煩爆暴煙畑畠水氷湯浩沈枕洋羊洲州酬海悔毎沖中仲忠灘波破流琉硫瀬頼渦禍鍋過洪湾浦補捕輔蒲舗浜兵潟臼興港湖胡沢択泥池地也淀河可何荷川滝竜龍渓鶏浮漏泌秘必滴摘適敵没潜浸侵寝深汚濯洗先溶容浴欲漱涼浄淳潤滑漬温沸湧勇油由汽気汁滋慈磁治渋湿涙戻泣酒潔決演淑叔液混昆濃農満両円漠濁激活括乱辞幸報測則側津漢汎凡帆渡度準滞帯済斉剤添派漫慢滅法去漂票標浅銭践漸渕淵源原減涯消肖渉澄登注柱駐漆沙砂淡談炎泳永詠凝准酸酷告酵孝教老醸壌嬢譲配酔粋木林森樋検験剣険桃逃松訟公榎樺華椿杉桜桧檜椎楢槙真慎柿梨桂圭楠根痕橘桑栃栗榊梅李柳楊揚陽槻規樹析枢枠梁棚朋崩杜槽曹遭樽橋喬僑矯欄蘭村核格各閣客械戒概慨棋期其箕旗欺杯不枚機幾磯畿枯古姑故校交較絞効郊朽極権植殖様棒奉俸桟札柄病模朴条柔集染査枝支社祈祖狙組粗租阻神申伸紳禅戦祝礼福副幅祥詳祐右祉止視初被皮彼披疲裕襟禁袖裸金銀銅同洞桐筒錫鉄迭鋼綱岡剛鉛沿鏡境錦銃充鎖釧鎌針鋭鈍屯鋳寿錠定鍵建健鉢本当鍛段鐘銘名鑑監艦釣鎮土売声喜塾熟壁癖型刑形瓶瓦墨塗墜堕有垣塀屏併壇塚塔搭答城成誠盛坑抗航堀屈掘堤提堰埼奇寄騎崎堺界場域壊懐堪勘甚均埋塩理里現珍珠朱株殊瑞班環還球求救琢王皇望聖玉素毒奏泰麦麹秦着美養姜帳長張幌晃光帽冒人傾頃佳使史借昔錯惜働動休傍任妊荏伝転催信仏払修倫輪伏位優憂傑俊駿峻体俣傷像象債佐左差俗谷俺奄僕撲業価係系件候供共他低抵底邸偵貞禎倒到俳排輩俵表備便偽為値置直依衣伊倭委仰偶遇隅例似以偏遍編篇仮住倶具償賞停亭偉違緯僚遼寮療侮仕士恭在存後行往主役疫術律循盾衛徒走超趙越赴微衝徹撤徳得征正証症政整徐叙除衡御卸街女妃姫臣臨媛援娘嫡妙妖如婿婦好媒婚姻因嫁家稼姓生星性牲産始嫌兼謙妻言誰謀某語吾悟話記己忌紀起議義犠儀論詰吉説税誌志課果菓巣詞司飼訓読訳調彫謹勤謎迷計諾診試式諮資姿次誓警敬驚護誘識織職訴認忍刃討諭愉輸癒謝射身許誕延譜普並設誇謡揺評平坪該劾諏取趣耳恥聴助聯心態能熊息恩憩恋変急忘盲忙亡患悪亜意怒奴努恐慰尉悲非扉斐想相湘箱懸悠憲懲徴懇惑愚憾感慣貫快悼怖布希惧恨惨参恒亘慌荒怪手撃投推拙出擬疑技岐携撮最掃描苗猫批比琵控捨舎掛挿擁措採菜彩掲授受拝拓押拐擦察搾握抜髪友抹末挟峡狭拡広鉱宏紘据居拠処損拷考打折挫座抑接摂扶夫捜探拾揮輝拒巨距拘足促捉躍踊用踏見親新観勧歓覧児克兜競週周近欣断辺刀速束疎運遊遅逆込入通痛途余斜遷逝巡遣送返退造逸遮追遂達進避逮迅逓迎述透選巽遺辻方肪坊妨訪房芳紡防放於族旅施旋北南西東凍棟車軌軸軟軽径茎経軒轄割舟船艇廷庭丹春夏秋萩冬朝潮乾乙韓午昼晩夜雨雲曇雰分紛粉霧務矛霞暇露路雷電雪霊需愛妥熱蒸承煮者煕照昭沼招紹召勲薫黙無舞点門問間簡関閑聞開閉閲悦閥伐闘写与冗冠軍穴字宗示寛宰辛執寒寂宮呂宝密審実窮宣寧害宅託宋寡室官菅管館阜宴賓富冨宜宇天宙抽安案完元翫寅丸究突窃切窒窪窯窓空学覚栄営蛍労掌堂党常哀衰喪裏裂列烈装壮荘製制褒保呆襲卒率豪亮享亨育棄向尚挙誉奮奈奔奪寸耐対封辱尊導道首尋裁載栽圧威灰厄歴暦厚厘席床麻摩磨廊郎朗庫府付符店商康慶庸鷹腐肉廉庶序廃発庵応廟鹿麗痢利疾痴知智虎虚戯虜慮膚盧虐劇屋局尻尾梶毛尿届展履尽尼戸所肩扇合含命企全傘寺時持侍詩待特等魚漁鯨鮮虫蛇蚊蝶融独狼浪良狂猛孟狩守猟猪獅師帥獲穫猶犯猿獄馬駒句駆区欧殴駅騒駄太烏鳥鳩鵬鴻鴈鴨鵜鶴鷲就島嶋嶌牛牟乳物事牧雄離雑難雀羽習翌翼翔翻番藩幡翁茨苑芽牙雅葉芝之乏草早卓芦芭巴把琶蕉茶菌菊葵藍薮蓮連芥介葛菩荻茅蘇菱募慕若暮墓幕蓄畜芸藝葬死薩薦薬楽夢藤茂薄博縛専簿苫占苦糸緒著績責積統給緩納内総聡純絹綿線泉網縄結締帝約的縁継絶色終紙氏紋文斎粛絵会綾繊細続縦従糾縮宿練索緊繁竹築筑篠笹世笛篤筋節即笑算筆肇籍策範米料斗粒笠立端糖唐粧庄粘糧量私稚稔念穏隠和移程呈稲穂恵秒称秩失科種重稿高季秀乃釈尺石礎礁焦研砕確硬更碁基山仙崔岩巌厳敢岸炭峠上下岳丘嶽峰峯逢縫嶺領嵐風凧岬甲崇皿盆盤磐搬般盗盟明益血衆食飲飾餓我既大臭尖奥奨将契犬献状獣力幼勉免励勢劣夕外残殉旬多久工項功攻巧江紅虹貢欠歌款隷敏改敷散数致至赦敦角触解争負危亀医矢短匠匹匿凶函幽刷剰乗創倉剖別削刈劉刻刺帰殺穀殻殿毅又収双隻隣来陣隆降際祭隊随髄院陵稜陸階皆陛陰陶陳障章彰隔陥邦鄭都郡君群部郵邪郁那郭阿弓引弘強弾単弦玄幻弥弱印再卵丈互鼓武飛冊缶弊幣面前`.split('');
+
+    const RADICALS = `儿目金手足雨人水火木口田日月心土艸女子竹米糸貝車門一二力刀十丶大小山川工巾弓彳攴戸石示禾穴立耳衣言谷豆豕豸赤走身辛辰里長阜邑酉青非面革韭音頁風飛食首馬骨高髟鬥鬯鬼魚鳥鹵鹿麦麻黄黍黒鼠鼻歯竜亀龠宀寸囗白皮皿矛矢网羊羽老耒聿肉臣自至臼舌舟色虫血行西見角甘生用瓦瓜玉玄犬牛牙士夕尸八卜卩厂厶又几凵冫冖冂入`.split('');
+
+    const app = {
+      kanjiData: {},
+      currentKanji: null,
+      studyQueue: [],
+      currentIndex: 0,
+      answerMode: 'rtk', // 'rtk', 'reading', or 'examples'
+      currentKanjiFullData: null,
+      
+      init() {
+        this.loadData();
+        this.loadTogglePreferences();
+        this.setupEventListeners();
+        this.renderGrid();
+        this.updateStats();
+      },
+      
+      loadTogglePreferences() {
+        const prefs = localStorage.getItem('togglePreferences');
+        if (prefs) {
+          const preferences = JSON.parse(prefs);
+          document.getElementById('show-kun').checked = preferences.showKun ?? true;
+          document.getElementById('show-on').checked = preferences.showOn ?? true;
+          document.getElementById('show-meaning').checked = preferences.showMeaning ?? true;
+          document.getElementById('show-examples').checked = preferences.showExamples ?? false;
+          document.getElementById('show-stroke-order').checked = preferences.showStrokeOrder ?? false;
+        } else {
+          // Set defaults
+          document.getElementById('show-kun').checked = true;
+          document.getElementById('show-on').checked = true;
+          document.getElementById('show-meaning').checked = true;
+          document.getElementById('show-examples').checked = false;
+          document.getElementById('show-stroke-order').checked = false;
+        }
+      },
+      
+      saveTogglePreferences() {
+        const preferences = {
+          showKun: document.getElementById('show-kun').checked,
+          showOn: document.getElementById('show-on').checked,
+          showMeaning: document.getElementById('show-meaning').checked,
+          showExamples: document.getElementById('show-examples').checked,
+          showStrokeOrder: document.getElementById('show-stroke-order').checked
+        };
+        localStorage.setItem('togglePreferences', JSON.stringify(preferences));
+      },
+      
+      loadData() {
+        const saved = localStorage.getItem('kanjiProgress');
+        if (saved) {
+          this.kanjiData = JSON.parse(saved);
+        } else {
+          // Initialize all kanji as unknown
+          KANJI_LIST.forEach(kanji => {
+            this.kanjiData[kanji] = {
+              level: 0, // 0=unknown, 1=learning, 2=familiar, 3=known, 4=mastered
+              lastReview: null,
+              nextReview: null,
+              reviewCount: 0
+            };
+          });
+          this.saveData();
+        }
+      },
+      
+      saveData() {
+        localStorage.setItem('kanjiProgress', JSON.stringify(this.kanjiData));
+      },
+      
+      setupEventListeners() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            e.target.classList.add('active');
+            const page = e.target.dataset.page;
+            document.getElementById(page + '-page').classList.add('active');
+            
+            // Auto-start study when switching to study page
+            if (page === 'study') {
+              this.startStudy();
+            }
+          });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          // Ignore if typing in an input field
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+          
+          const key = e.key.toLowerCase();
+          const isAnswerVisible = document.getElementById('kanji-info').classList.contains('visible');
+          const isStudyMode = document.getElementById('study-page').classList.contains('active');
+          
+          // Only handle shortcuts in study mode
+          if (!isStudyMode) return;
+          
+          // Space/Enter - Show Answer
+          if ((key === ' ' || key === 'enter') && !isAnswerVisible) {
+            e.preventDefault();
+            this.showAnswer();
+            return;
+          }
+          
+          // Number keys 0-4 - Rate cards (only when answer is visible)
+          if (isAnswerVisible && ['0', '1', '2', '3', '4'].includes(key)) {
+            e.preventDefault();
+            const rating = parseInt(key);
+            this.rateCard(rating);
+            return;
+          }
+          
+          // Toggle shortcuts (work anytime in study mode)
+          if (key === 'k') {
+            e.preventDefault();
+            document.getElementById('show-kun').click();
+            return;
+          }
+          if (key === 'o') {
+            e.preventDefault();
+            document.getElementById('show-on').click();
+            return;
+          }
+          if (key === 'm') {
+            e.preventDefault();
+            document.getElementById('show-meaning').click();
+            return;
+          }
+          if (key === 'e') {
+            e.preventDefault();
+            document.getElementById('show-examples').click();
+            return;
+          }
+          if (key === 's') {
+            e.preventDefault();
+            document.getElementById('show-stroke-order').click();
+            return;
+          }
+          
+          // Arrow keys / Backspace - Navigate cards
+          if (key === 'arrowleft' || key === 'backspace') {
+            e.preventDefault();
+            this.previousCard();
+            return;
+          }
+          if (key === 'arrowright') {
+            e.preventDefault();
+            this.nextCard();
+            return;
+          }
+          
+          // R - Restart session
+          if (key === 'r') {
+            e.preventDefault();
+            this.startStudy();
+            return;
+          }
+          
+          // Escape - Skip card
+          if (key === 'escape') {
+            e.preventDefault();
+            this.skipCard();
+            return;
+          }
+        });
+      },
+      
+      renderGrid() {
+        const grid = document.getElementById('kanji-grid');
+        grid.innerHTML = '';
+        
+        KANJI_LIST.forEach(kanji => {
+          const cell = document.createElement('div');
+          cell.className = 'kanji-cell ' + this.getLevelClass(kanji);
+          cell.textContent = kanji;
+          cell.title = `Click to study: ${kanji}`;
+          cell.addEventListener('click', () => this.studySpecificKanji(kanji));
+          grid.appendChild(cell);
+        });
+      },
+      
+      studySpecificKanji(kanji) {
+        // Switch to study mode tab
+        this.switchTab('study');
+        
+        // Create a study queue with just this kanji
+        this.studyQueue = [kanji];
+        this.currentIndex = 0;
+        
+        // Show study card
+        document.getElementById('study-card').style.display = 'flex';
+        document.getElementById('no-kanji').style.display = 'none';
+        
+        // Load the card
+        this.showCard();
+      },
+      
+      switchTab(page) {
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.dataset.page === page) {
+            btn.classList.add('active');
+          }
+        });
+        
+        // Update pages
+        document.querySelectorAll('.page').forEach(p => {
+          p.classList.remove('active');
+        });
+        document.getElementById(page + '-page').classList.add('active');
+      },
+      
+      getLevelClass(kanji) {
+        const level = this.kanjiData[kanji]?.level || 0;
+        const classes = ['unknown', 'learning', 'familiar', 'known', 'mastered'];
+        return classes[level];
+      },
+      
+      updateStats() {
+        const stats = { unknown: 0, learning: 0, familiar: 0, known: 0, mastered: 0 };
+        KANJI_LIST.forEach(kanji => {
+          const level = this.kanjiData[kanji]?.level || 0;
+          const key = ['unknown', 'learning', 'familiar', 'known', 'mastered'][level];
+          stats[key]++;
+        });
+        
+        document.getElementById('total-kanji').textContent = KANJI_LIST.length;
+        document.getElementById('mastered-count').textContent = stats.mastered;
+        document.getElementById('learning-count').textContent = stats.learning + stats.familiar + stats.known;
+        document.getElementById('unknown-count').textContent = stats.unknown;
+      },
+      
+      
+      async startStudy() {
+        const filter = document.getElementById('level-filter').value;
+        const sort = document.getElementById('sort-option').value;
+        
+        const now = new Date();
+        
+        // Build queue based on filter
+        this.studyQueue = KANJI_LIST.filter(kanji => {
+          const data = this.kanjiData[kanji];
+          
+          // Skip cards that aren't due yet (unless filtering by 'all')
+          if (filter !== 'all' && data.nextReview) {
+            const nextReviewDate = new Date(data.nextReview);
+            if (nextReviewDate > now) {
+              return false; // Not due yet
+            }
+          }
+          
+          if (filter === 'all') return true;
+          if (filter === 'unknown') return data.level === 0;
+          if (filter === 'learning') return data.level === 1;
+          if (filter === 'familiar') return data.level === 2;
+          if (filter === 'known') return data.level === 3;
+          if (filter === 'review') {
+            // Only show cards that are due for review
+            if (!data.nextReview) return false;
+            return new Date(data.nextReview) <= now;
+          }
+          return false;
+        });
+        
+        if (this.studyQueue.length === 0) {
+          document.getElementById('study-card').style.display = 'none';
+          document.getElementById('no-kanji').style.display = 'block';
+          return;
+        }
+        
+        document.getElementById('study-card').style.display = 'flex';
+        document.getElementById('no-kanji').style.display = 'none';
+        
+        // Sort queue
+        if (sort === 'random') {
+          this.studyQueue.sort(() => Math.random() - 0.5);
+        } else if (sort === 'level') {
+          this.studyQueue.sort((a, b) => this.kanjiData[a].level - this.kanjiData[b].level);
+        }
+        // For frequency, we'll keep the original order (which is roughly by frequency)
+        
+        this.currentIndex = 0;
+        this.showCard();
+      },
+      
+      async showCard() {
+        if (this.currentIndex >= this.studyQueue.length) {
+          // Session complete - just hide the card
+          document.getElementById('study-card').style.display = 'none';
+          document.getElementById('no-kanji').style.display = 'block';
+          document.getElementById('no-kanji').innerHTML = '<p>Study session complete! 🎉</p><p style="margin-top: 1rem;">Select a filter to start a new session.</p>';
+          return;
+        }
+        
+        this.currentKanji = this.studyQueue[this.currentIndex];
+        document.getElementById('current-kanji').textContent = this.currentKanji;
+        document.getElementById('kanji-info').classList.remove('visible');
+        document.getElementById('rating-buttons').classList.remove('visible');
+        document.getElementById('show-answer-btn').style.display = 'block';
+        
+        // Reset display - show kanji, hide stroke order initially
+        document.getElementById('current-kanji').style.display = 'block';
+        document.getElementById('stroke-order').style.display = 'none';
+        document.getElementById('stroke-order').innerHTML = '';
+        
+        // Fetch kanji data from multiple sources
+        try {
+          // Get basic kanji data
+          const kanjiResponse = await fetch(`https://kanjiapi.dev/v1/kanji/${this.currentKanji}`);
+          const kanjiData = await kanjiResponse.json();
+          this.currentKanjiFullData = kanjiData;
+          
+          // Get example words
+          const wordsResponse = await fetch(`https://kanjiapi.dev/v1/words/${this.currentKanji}`);
+          const wordsData = await wordsResponse.json();
+          this.currentKanjiFullData.words = wordsData;
+          
+        } catch (error) {
+          console.error('Error fetching kanji data:', error);
+          this.currentKanjiFullData = null;
+        }
+      },
+      
+      setAnswerMode(mode) {
+        this.answerMode = mode;
+        
+        // Update toggle button states
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // If answer is already visible, update it
+        if (document.getElementById('kanji-info').classList.contains('visible')) {
+          this.displayAnswer();
+        }
+      },
+      
+      displayAnswer() {
+        const data = this.currentKanjiFullData;
+        
+        if (!data) {
+          document.getElementById('kanji-reading').textContent = '—';
+          document.getElementById('kanji-meaning').textContent = 'Data unavailable';
+          document.getElementById('kanji-examples').innerHTML = '';
+          return;
+        }
+        
+        const showKun = document.getElementById('show-kun').checked;
+        const showOn = document.getElementById('show-on').checked;
+        const showMeaning = document.getElementById('show-meaning').checked;
+        const showExamples = document.getElementById('show-examples').checked;
+        const showStrokeOrder = document.getElementById('show-stroke-order').checked;
+        
+        // Toggle between kanji display and stroke order
+        if (showStrokeOrder) {
+          document.getElementById('current-kanji').style.display = 'none';
+          document.getElementById('stroke-order').style.display = 'block';
+          this.loadStrokeOrder();
+        } else {
+          document.getElementById('current-kanji').style.display = 'block';
+          document.getElementById('stroke-order').style.display = 'none';
+        }
+        
+        let readingHTML = '';
+        
+        // Show ALL kun readings if checked
+        if (showKun && data.kun_readings && data.kun_readings.length > 0) {
+          readingHTML += `<div style="margin-bottom: 15px;">
+            <strong>訓読み:</strong> ${data.kun_readings.join(', ')}
+          </div>`;
+        }
+        
+        // Show ALL on readings if checked
+        if (showOn && data.on_readings && data.on_readings.length > 0) {
+          readingHTML += `<div style="margin-bottom: 15px;">
+            <strong>音読み:</strong> ${data.on_readings.join(', ')}
+          </div>`;
+        }
+        
+        if (readingHTML) {
+          document.getElementById('kanji-reading').innerHTML = readingHTML;
+          document.getElementById('kanji-reading').style.display = 'block';
+        } else {
+          document.getElementById('kanji-reading').style.display = 'none';
+        }
+        
+        // Show ALL meanings if checked
+        if (showMeaning) {
+          if (data.meanings && data.meanings.length > 0) {
+            document.getElementById('kanji-meaning').textContent = data.meanings.join(', ');
+          } else {
+            document.getElementById('kanji-meaning').textContent = '—';
+          }
+          document.getElementById('kanji-meaning').style.display = 'block';
+        } else {
+          document.getElementById('kanji-meaning').style.display = 'none';
+        }
+        
+        // Show examples if checked
+        if (showExamples) {
+          const examplesHTML = this.getExamples(data);
+          document.getElementById('kanji-examples').innerHTML = examplesHTML;
+          document.getElementById('kanji-examples').style.display = 'block';
+        } else {
+          document.getElementById('kanji-examples').style.display = 'none';
+        }
+      },
+      
+      async loadStrokeOrder() {
+        const kanji = this.currentKanji;
+        const unicode = kanji.codePointAt(0).toString(16).padStart(5, '0');
+        const svgUrl = `https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${unicode}.svg`;
+        
+        try {
+          const response = await fetch(svgUrl);
+          const svgText = await response.text();
+          
+          // Parse SVG properly to avoid XML artifacts
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svg = svgDoc.querySelector('svg');
+          
+          if (!svg) {
+            throw new Error('Invalid SVG');
+          }
+          
+          // Clean up the container and add the SVG
+          const container = document.getElementById('stroke-order');
+          container.innerHTML = '';
+          container.appendChild(svg.cloneNode(true));
+          
+          // Get the imported SVG element
+          const importedSvg = container.querySelector('svg');
+          
+          // Remove all metadata groups (kvg:element, text elements, etc.)
+          importedSvg.querySelectorAll('g[id^="kvg:StrokeNumbers"]').forEach(el => el.remove());
+          importedSvg.querySelectorAll('text').forEach(el => el.remove());
+          
+          // Get only the stroke paths (not the character outline)
+          const paths = importedSvg.querySelectorAll('path[id^="kvg:"]');
+          paths.forEach((path, index) => {
+            // Style the strokes
+            path.style.fill = 'none';
+            path.style.stroke = 'black';
+            path.style.strokeWidth = '3';
+            path.style.strokeLinecap = 'round';
+            path.style.strokeLinejoin = 'round';
+            
+            // Animate
+            const length = path.getTotalLength();
+            path.style.strokeDasharray = length;
+            path.style.strokeDashoffset = length;
+            path.style.animation = `drawStroke 0.5s ease-out ${index * 0.3}s forwards`;
+          });
+          
+          // Add CSS animation if not already added
+          if (!document.getElementById('stroke-animation-style')) {
+            const style = document.createElement('style');
+            style.id = 'stroke-animation-style';
+            style.textContent = `
+              @keyframes drawStroke {
+                to {
+                  stroke-dashoffset: 0;
+                }
+              }
+            `;
+            document.head.appendChild(style);
+          }
+        } catch (error) {
+          console.error('Error loading stroke order:', error);
+          document.getElementById('stroke-order').innerHTML = '<p style="color: #999;">Stroke order not available</p>';
+        }
+      },
+      
+      getPrimaryReadingWithExample(data) {
+        // Try to find kun'yomi example first
+        if (data.kun_readings && data.kun_readings.length > 0 && data.words) {
+          const kunReading = data.kun_readings[0];
+          
+          // Priority 1: Single kanji by itself (most common usage)
+          const singleKanji = data.words.find(word => {
+            const written = word.variants[0]?.written || '';
+            return written === this.currentKanji;
+          });
+          
+          if (singleKanji && singleKanji.variants[0]) {
+            const variant = singleKanji.variants[0];
+            const meaning = singleKanji.meanings[0]?.glosses[0] || '';
+            return {
+              display: `${variant.written} (${variant.pronounced})`,
+              meaning: meaning
+            };
+          }
+          
+          // Priority 2: Simple kun'yomi word (kanji + 1-2 hiragana, like 食べる)
+          const simpleKunWord = data.words.find(word => {
+            const written = word.variants[0]?.written || '';
+            return written.startsWith(this.currentKanji) && 
+                   written.length <= 4 &&
+                   this.containsHiragana(written);
+          });
+          
+          if (simpleKunWord && simpleKunWord.variants[0]) {
+            const variant = simpleKunWord.variants[0];
+            const meaning = simpleKunWord.meanings[0]?.glosses[0] || '';
+            return {
+              display: `${variant.written} (${variant.pronounced})`,
+              meaning: meaning
+            };
+          }
+          
+          // Fallback: just show the kun'yomi reading
+          return {
+            display: kunReading,
+            meaning: this.getPrimaryMeaning(data)
+          };
+        }
+        
+        // If no kun'yomi, use on'yomi with compound
+        if (data.on_readings && data.on_readings.length > 0 && data.words) {
+          const onReading = data.on_readings[0];
+          
+          // Look for a common compound (2 kanji)
+          const compound = data.words.find(word => {
+            const written = word.variants[0]?.written || '';
+            return written.length === 2 && 
+                   written.includes(this.currentKanji) &&
+                   !this.containsHiragana(written);
+          });
+          
+          if (compound && compound.variants[0]) {
+            const variant = compound.variants[0];
+            const meaning = compound.meanings[0]?.glosses[0] || '';
+            return {
+              display: `${variant.written} (${variant.pronounced})`,
+              meaning: meaning
+            };
+          }
+          
+          // Fallback: just show the on'yomi reading
+          return {
+            display: onReading,
+            meaning: this.getPrimaryMeaning(data)
+          };
+        }
+        
+        // Ultimate fallback
+        return {
+          display: '—',
+          meaning: this.getPrimaryMeaning(data)
+        };
+      },
+      
+      containsHiragana(text) {
+        // Check if string contains hiragana characters
+        return /[\u3040-\u309F]/.test(text);
+      },
+      
+      getExamples(data) {
+        if (!data.words || data.words.length === 0) {
+          return '<p>No examples available</p>';
+        }
+        
+        // Get first 3-5 examples
+        const examples = data.words.slice(0, 5);
+        let html = '';
+        
+        examples.forEach(word => {
+          const meanings = word.meanings.map(m => m.glosses.join(', ')).join('; ');
+          html += `
+            <div class="example-item">
+              <div class="example-ja">${word.variants[0].written} (${word.variants[0].pronounced})</div>
+              <div class="example-en">${meanings}</div>
+            </div>
+          `;
+        });
+        
+        return html;
+      },
+      
+      getPrimaryReading(data) {
+        // For numbers and common kanji, prioritize kun'yomi
+        // For most other kanji, prioritize on'yomi
+        let reading = '';
+        
+        if (data.kun_readings && data.kun_readings.length > 0) {
+          // Clean up kun'yomi - remove the okurigana part (after the dot)
+          reading = data.kun_readings[0].split('.')[0];
+        }
+        
+        if (!reading && data.on_readings && data.on_readings.length > 0) {
+          reading = data.on_readings[0];
+        }
+        
+        return reading || '—';
+      },
+      
+      getPrimaryMeaning(data) {
+        // Get the first/most common meaning
+        if (data.meanings && data.meanings.length > 0) {
+          return data.meanings[0];
+        }
+        return '—';
+      },
+      
+      showAnswer() {
+        this.displayAnswer();
+        document.getElementById('kanji-info').classList.add('visible');
+        document.getElementById('rating-buttons').classList.add('visible');
+        document.getElementById('show-answer-btn').style.display = 'none';
+      },
+      
+      updateDisplay() {
+        // Only update if answer is already shown
+        if (document.getElementById('kanji-info').classList.contains('visible')) {
+          this.displayAnswer();
+        }
+      },
+      
+      rateCard(rating) {
+        // Update kanji data
+        const data = this.kanjiData[this.currentKanji];
+        data.level = rating;
+        data.lastReview = new Date().toISOString();
+        data.reviewCount++;
+        
+        // Calculate next review (simple SRS)
+        const intervals = [1, 3, 7, 14, 30]; // days
+        const interval = intervals[rating] || 1;
+        const nextReview = new Date();
+        nextReview.setDate(nextReview.getDate() + interval);
+        data.nextReview = nextReview.toISOString();
+        
+        this.saveData();
+        this.renderGrid();
+        this.updateStats();
+        
+        // Move to next card
+        this.currentIndex++;
+        this.showCard();
+      },
+      
+      previousCard() {
+        if (this.currentIndex > 0) {
+          this.currentIndex--;
+          this.showCard();
+        }
+      },
+      
+      nextCard() {
+        if (this.currentIndex < this.studyQueue.length - 1) {
+          this.currentIndex++;
+          this.showCard();
+        }
+      },
+      
+      skipCard() {
+        // Skip without rating
+        this.currentIndex++;
+        this.showCard();
+      }
+    };
+
+    // Initialize app
+    app.init();
+  </script>
+</body>
+</html>
