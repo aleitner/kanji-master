@@ -1419,12 +1419,12 @@
           examples.push(verbalForms[0].variants[0].written);
         }
         
-        // Priority 2: Kanji compound (2-kanji word where our kanji is first)
+        // Priority 2: Kanji compound (2-kanji word containing our kanji anywhere)
         if (examples.length < 5) {
           const compounds = wordsWithTargetKanji.filter(word => {
             const written = word.variants[0]?.written || '';
             return written.length === 2 && 
-                   written.startsWith(kanji) &&
+                   written.includes(kanji) && // Kanji can be anywhere in the compound
                    !/[\u3040-\u309F]/.test(written) && // No hiragana
                    !examples.includes(written);
           });
