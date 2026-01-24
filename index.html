@@ -1412,7 +1412,7 @@
           // Must be hiragana and typically end in う-column (う, く, す, つ, ぬ, ぶ, む, る, ぐ, ず, づ, ぶ, ぷ)
           return /^[\u3040-\u309F]+$/.test(afterKanji) && 
                  /[うくすつぬぶむるぐずづぷ]$/.test(written);
-        }).sort((a, b) => a.variants[0].written.length - b.variants[0].written.length);
+        });
         
         if (verbalForms.length > 0) {
           console.log('Found verbal form:', verbalForms[0].variants[0].written);
@@ -1446,7 +1446,7 @@
             return /^[\u3040-\u309F]+$/.test(afterKanji) && 
                    /い$/.test(written) &&
                    !examples.includes(written);
-          }).sort((a, b) => a.variants[0].written.length - b.variants[0].written.length);
+          });
           
           if (adjectivalForms.length > 0) {
             console.log('Found adjectival form:', adjectivalForms[0].variants[0].written);
@@ -1465,7 +1465,7 @@
             return /^[\u3040-\u309F]+$/.test(afterKanji) && 
                    /[りく]$/.test(written) &&
                    !examples.includes(written);
-          }).sort((a, b) => a.variants[0].written.length - b.variants[0].written.length);
+          });
           
           if (adverbialForms.length > 0) {
             console.log('Found adverbial form:', adverbialForms[0].variants[0].written);
