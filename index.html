@@ -200,6 +200,13 @@
       margin-bottom: 20px;
     }
     
+    .context-display {
+      font-size: 32px;
+      color: #666;
+      margin-top: -10px;
+      margin-bottom: 20px;
+    }
+    
     .kanji-info {
       display: none;
     }
@@ -436,12 +443,16 @@
           <label style="margin-right: 15px; cursor: pointer;" id="label-examples">
             <input type="checkbox" id="show-examples" onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="cursor: pointer;" id="label-stroke">
+          <label style="margin-right: 15px; cursor: pointer;" id="label-stroke">
             <input type="checkbox" id="show-stroke-order" onchange="app.saveTogglePreferences(); app.updateDisplay()">
+          </label>
+          <label style="cursor: pointer;" id="label-context">
+            <input type="checkbox" id="show-in-context" onchange="app.saveTogglePreferences(); app.updateContextDisplay()">
           </label>
         </div>
         
         <div class="kanji-display" id="current-kanji"></div>
+        <div class="context-display" id="context-display" style="display: none;"></div>
         <div class="stroke-order" id="stroke-order" style="display: none;"></div>
         
         <button class="show-answer-btn" id="show-answer-btn" onclick="app.showAnswer()">
@@ -512,6 +523,7 @@
         meaning: '意味',
         examples: '例文',
         strokeOrder: '筆順',
+        showInContext: '文脈で表示',
         showAnswer: '答えを見る',
         total: '合計',
         totalKanji: '合計漢字',
@@ -563,6 +575,7 @@
         meaning: 'Meaning',
         examples: 'Examples',
         strokeOrder: 'Stroke Order',
+        showInContext: 'Show in Context',
         showAnswer: 'Show Answer',
         total: 'Total',
         totalKanji: 'Total Kanji',
@@ -595,6 +608,7 @@
       studyQueue: [],
       currentIndex: 0,
       currentKanjiFullData: null,
+      nextKanjiData: null, // Cache for pre-fetched next card
       language: 'ja',
       
       init() {
@@ -665,6 +679,9 @@
         document.getElementById('label-examples').innerHTML = `<input type="checkbox" id="show-examples" ${examplesCheckbox.checked ? 'checked' : ''} onchange="app.saveTogglePreferences(); app.updateDisplay()"> ${this.t('examples')}`;
         document.getElementById('label-stroke').innerHTML = `<input type="checkbox" id="show-stroke-order" ${strokeCheckbox.checked ? 'checked' : ''} onchange="app.saveTogglePreferences(); app.updateDisplay()"> ${this.t('strokeOrder')}`;
         
+        const contextCheckbox = document.getElementById('show-in-context');
+        document.getElementById('label-context').innerHTML = `<input type="checkbox" id="show-in-context" ${contextCheckbox.checked ? 'checked' : ''} onchange="app.saveTogglePreferences(); app.updateContextDisplay()"> ${this.t('showInContext')}`;
+        
         // Show answer button
         document.getElementById('show-answer-btn').textContent = this.t('showAnswer');
         
@@ -704,6 +721,7 @@
           document.getElementById('show-meaning').checked = preferences.showMeaning ?? true;
           document.getElementById('show-examples').checked = preferences.showExamples ?? false;
           document.getElementById('show-stroke-order').checked = preferences.showStrokeOrder ?? false;
+          document.getElementById('show-in-context').checked = preferences.showInContext ?? false;
         } else {
           // Set defaults
           document.getElementById('show-kun').checked = true;
@@ -711,6 +729,7 @@
           document.getElementById('show-meaning').checked = true;
           document.getElementById('show-examples').checked = false;
           document.getElementById('show-stroke-order').checked = false;
+          document.getElementById('show-in-context').checked = false;
         }
       },
       
@@ -720,7 +739,8 @@
           showOn: document.getElementById('show-on').checked,
           showMeaning: document.getElementById('show-meaning').checked,
           showExamples: document.getElementById('show-examples').checked,
-          showStrokeOrder: document.getElementById('show-stroke-order').checked
+          showStrokeOrder: document.getElementById('show-stroke-order').checked,
+          showInContext: document.getElementById('show-in-context').checked
         };
         localStorage.setItem('togglePreferences', JSON.stringify(preferences));
       },
@@ -1119,6 +1139,40 @@
         this.showCard();
       },
       
+      async preFetchNextCard() {
+        // Pre-fetch data for the next card in background
+        const nextIndex = this.currentIndex + 1;
+        if (nextIndex >= this.studyQueue.length) {
+          // No next card to pre-fetch
+          this.nextKanjiData = null;
+          return;
+        }
+        
+        const nextKanji = this.studyQueue[nextIndex];
+        console.log('Pre-fetching data for next card:', nextKanji);
+        
+        try {
+          // Fetch both APIs in parallel
+          const [kanjiResponse, wordsResponse] = await Promise.all([
+            fetch(`https://kanjiapi.dev/v1/kanji/${nextKanji}`),
+            fetch(`https://kanjiapi.dev/v1/words/${nextKanji}`)
+          ]);
+          
+          const kanjiData = await kanjiResponse.json();
+          const wordsData = await wordsResponse.json();
+          kanjiData.words = wordsData;
+          
+          this.nextKanjiData = {
+            kanji: nextKanji,
+            data: kanjiData
+          };
+          console.log('Pre-fetch complete for:', nextKanji);
+        } catch (error) {
+          console.error('Error pre-fetching next card:', error);
+          this.nextKanjiData = null;
+        }
+      },
+      
       async showCard() {
         if (this.currentIndex >= this.studyQueue.length) {
           // Session complete - just hide the card
@@ -1129,7 +1183,42 @@
         }
         
         this.currentKanji = this.studyQueue[this.currentIndex];
-        document.getElementById('current-kanji').textContent = this.currentKanji;
+        
+        // Check if we have pre-fetched data for this card
+        if (this.nextKanjiData && this.nextKanjiData.kanji === this.currentKanji) {
+          console.log('Using pre-fetched data for:', this.currentKanji);
+          this.currentKanjiFullData = this.nextKanjiData.data;
+          this.nextKanjiData = null; // Clear the cache
+          
+          // Display kanji with optional context
+          this.updateContextDisplay();
+        } else {
+          // No cached data, fetch it now
+          console.log('Fetching data for:', this.currentKanji);
+          try {
+            // Fetch both APIs in parallel
+            const [kanjiResponse, wordsResponse] = await Promise.all([
+              fetch(`https://kanjiapi.dev/v1/kanji/${this.currentKanji}`),
+              fetch(`https://kanjiapi.dev/v1/words/${this.currentKanji}`)
+            ]);
+            
+            const kanjiData = await kanjiResponse.json();
+            const wordsData = await wordsResponse.json();
+            this.currentKanjiFullData = kanjiData;
+            this.currentKanjiFullData.words = wordsData;
+            
+            // Display kanji with optional context
+            this.updateContextDisplay();
+            
+          } catch (error) {
+            console.error('Error fetching kanji data:', error);
+            this.currentKanjiFullData = null;
+            document.getElementById('current-kanji').textContent = this.currentKanji;
+            document.getElementById('context-display').style.display = 'none';
+          }
+        }
+        
+        // Reset UI state
         document.getElementById('kanji-info').classList.remove('visible');
         document.getElementById('rating-buttons').classList.remove('visible');
         document.getElementById('show-answer-btn').style.display = 'block';
@@ -1139,22 +1228,8 @@
         document.getElementById('stroke-order').style.display = 'none';
         document.getElementById('stroke-order').innerHTML = '';
         
-        // Fetch kanji data from multiple sources
-        try {
-          // Get basic kanji data
-          const kanjiResponse = await fetch(`https://kanjiapi.dev/v1/kanji/${this.currentKanji}`);
-          const kanjiData = await kanjiResponse.json();
-          this.currentKanjiFullData = kanjiData;
-          
-          // Get example words
-          const wordsResponse = await fetch(`https://kanjiapi.dev/v1/words/${this.currentKanji}`);
-          const wordsData = await wordsResponse.json();
-          this.currentKanjiFullData.words = wordsData;
-          
-        } catch (error) {
-          console.error('Error fetching kanji data:', error);
-          this.currentKanjiFullData = null;
-        }
+        // Pre-fetch the NEXT card in background
+        this.preFetchNextCard();
       },
       
       displayAnswer() {
@@ -1176,11 +1251,14 @@
         // Toggle between kanji display and stroke order
         if (showStrokeOrder) {
           document.getElementById('current-kanji').style.display = 'none';
+          document.getElementById('context-display').style.display = 'none';
           document.getElementById('stroke-order').style.display = 'block';
           this.loadStrokeOrder();
         } else {
           document.getElementById('current-kanji').style.display = 'block';
           document.getElementById('stroke-order').style.display = 'none';
+          // Re-apply context display based on setting
+          this.updateContextDisplay();
         }
         
         let readingHTML = '';
@@ -1294,6 +1372,118 @@
         }
       },
       
+      getBestRepresentativeWord(kanji, data) {
+        console.log('getBestRepresentativeWord called for:', kanji);
+        console.log('Kanji character code:', kanji.charCodeAt(0));
+        
+        if (!data || !data.words || data.words.length === 0) {
+          console.log('No words available, returning empty array');
+          return []; // Fallback to empty
+        }
+        
+        console.log('First few words:', data.words.slice(0, 5).map(w => w.variants[0]?.written));
+        
+        // IMPORTANT: Check if any words actually contain our target kanji
+        const wordsWithTargetKanji = data.words.filter(word => {
+          const written = word.variants[0]?.written || '';
+          return written.includes(kanji);
+        });
+        
+        console.log('Words containing target kanji:', wordsWithTargetKanji.length);
+        if (wordsWithTargetKanji.length === 0) {
+          console.log('NO WORDS CONTAIN TARGET KANJI - returning empty array');
+          return []; // Don't show misleading context
+        }
+        
+        const examples = [];
+        
+        // Priority 1: Verbal form (verb with okurigana ending in う-form)
+        // Look for patterns like: 操る, 輝く, 食べる
+        const verbalForms = wordsWithTargetKanji.filter(word => {
+          const written = word.variants[0]?.written || '';
+          if (!written.startsWith(kanji)) return false;
+          if (written.length < 2 || written.length > 4) return false;
+          const afterKanji = written.substring(1);
+          // Must be hiragana and typically end in う-column (う, く, す, つ, ぬ, ぶ, む, る, ぐ, ず, づ, ぶ, ぷ)
+          return /^[\u3040-\u309F]+$/.test(afterKanji) && 
+                 /[うくすつぬぶむるぐずづぷ]$/.test(written);
+        }).sort((a, b) => a.variants[0].written.length - b.variants[0].written.length);
+        
+        if (verbalForms.length > 0) {
+          console.log('Found verbal form:', verbalForms[0].variants[0].written);
+          examples.push(verbalForms[0].variants[0].written);
+        }
+        
+        // Priority 2: Kanji compound (2-kanji word where our kanji is first)
+        if (examples.length < 5) {
+          const compounds = wordsWithTargetKanji.filter(word => {
+            const written = word.variants[0]?.written || '';
+            return written.length === 2 && 
+                   written.startsWith(kanji) &&
+                   !/[\u3040-\u309F]/.test(written) && // No hiragana
+                   !examples.includes(written);
+          });
+          
+          if (compounds.length > 0) {
+            console.log('Found compound:', compounds[0].variants[0].written);
+            examples.push(compounds[0].variants[0].written);
+          }
+        }
+        
+        // Priority 3: Adjectival form (adjective with okurigana, typically ending in い or しい)
+        if (examples.length < 5) {
+          const adjectivalForms = wordsWithTargetKanji.filter(word => {
+            const written = word.variants[0]?.written || '';
+            if (!written.startsWith(kanji)) return false;
+            if (written.length < 2 || written.length > 5) return false;
+            const afterKanji = written.substring(1);
+            // Must be hiragana and end in い (adjective pattern)
+            return /^[\u3040-\u309F]+$/.test(afterKanji) && 
+                   /い$/.test(written) &&
+                   !examples.includes(written);
+          }).sort((a, b) => a.variants[0].written.length - b.variants[0].written.length);
+          
+          if (adjectivalForms.length > 0) {
+            console.log('Found adjectival form:', adjectivalForms[0].variants[0].written);
+            examples.push(adjectivalForms[0].variants[0].written);
+          }
+        }
+        
+        // Priority 4: Adverbial form (adverb with okurigana, typically ending in り or く)
+        if (examples.length < 5) {
+          const adverbialForms = wordsWithTargetKanji.filter(word => {
+            const written = word.variants[0]?.written || '';
+            if (!written.startsWith(kanji)) return false;
+            if (written.length < 2 || written.length > 5) return false;
+            const afterKanji = written.substring(1);
+            // Must be hiragana and end in り or く (adverb pattern)
+            return /^[\u3040-\u309F]+$/.test(afterKanji) && 
+                   /[りく]$/.test(written) &&
+                   !examples.includes(written);
+          }).sort((a, b) => a.variants[0].written.length - b.variants[0].written.length);
+          
+          if (adverbialForms.length > 0) {
+            console.log('Found adverbial form:', adverbialForms[0].variants[0].written);
+            examples.push(adverbialForms[0].variants[0].written);
+          }
+        }
+        
+        // Priority 5: Single kanji by itself (一, 二, 人)
+        if (examples.length < 5) {
+          const singleKanji = wordsWithTargetKanji.find(word => {
+            const written = word.variants[0]?.written || '';
+            return written === kanji;
+          });
+          if (singleKanji && !examples.includes(kanji)) {
+            console.log('Found single kanji:', kanji);
+            examples.push(kanji);
+          }
+        }
+        
+        console.log('Final examples:', examples);
+        return examples;
+      },
+      
       getExamples(data) {
         if (!data.words || data.words.length === 0) {
           return `<p>${this.t('noExamples')}</p>`;
@@ -1321,6 +1511,34 @@
         document.getElementById('kanji-info').classList.add('visible');
         document.getElementById('rating-buttons').classList.add('visible');
         document.getElementById('show-answer-btn').style.display = 'none';
+      },
+      
+      updateContextDisplay() {
+        // Update the displayed kanji/word without resetting the card state
+        if (!this.currentKanji || !this.currentKanjiFullData) {
+          return; // No card loaded yet
+        }
+        
+        const showInContext = document.getElementById('show-in-context').checked;
+        const contextDisplay = document.getElementById('context-display');
+        
+        // Always show the isolated kanji
+        document.getElementById('current-kanji').textContent = this.currentKanji;
+        
+        if (showInContext) {
+          // Show context words underneath
+          const contextWords = this.getBestRepresentativeWord(this.currentKanji, this.currentKanjiFullData);
+          // Only show if we have context words
+          if (contextWords.length > 0) {
+            contextDisplay.textContent = contextWords.join('・'); // Japanese middle dot separator
+            contextDisplay.style.display = 'block';
+          } else {
+            contextDisplay.style.display = 'none';
+          }
+        } else {
+          // Hide context
+          contextDisplay.style.display = 'none';
+        }
       },
       
       updateDisplay() {
