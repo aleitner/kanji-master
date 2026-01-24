@@ -452,8 +452,8 @@
         </div>
         
         <div class="kanji-display" id="current-kanji"></div>
-        <div class="context-display" id="context-display" style="display: none;"></div>
         <div class="stroke-order" id="stroke-order" style="display: none;"></div>
+        <div class="context-display" id="context-display" style="display: none;"></div>
         
         <button class="show-answer-btn" id="show-answer-btn" onclick="app.showAnswer()">
         </button>
@@ -901,6 +901,11 @@
             
             // Auto-start study when switching to study page
             if (page === 'study') {
+              // Hide answer info IMMEDIATELY before startStudy runs
+              document.getElementById('kanji-info').classList.remove('visible');
+              document.getElementById('rating-buttons').classList.remove('visible');
+              document.getElementById('show-answer-btn').style.display = 'block';
+              
               this.startStudy();
             } else {
               // Clear study card display when leaving study mode
@@ -1010,6 +1015,14 @@
       studySpecificKanji(kanji) {
         // Switch to study mode tab
         this.switchTab('study');
+        
+        // Hide answer info IMMEDIATELY
+        document.getElementById('kanji-info').classList.remove('visible');
+        document.getElementById('rating-buttons').classList.remove('visible');
+        document.getElementById('show-answer-btn').style.display = 'block';
+        document.getElementById('kanji-reading').innerHTML = '';
+        document.getElementById('kanji-meaning').textContent = '';
+        document.getElementById('kanji-examples').innerHTML = '';
         
         // Create a study queue with just this kanji
         this.studyQueue = [kanji];
@@ -1141,6 +1154,15 @@
         // For frequency, we'll keep the original order (which is roughly by frequency)
         
         this.currentIndex = 0;
+        
+        // Clear any old answer data before showing new card
+        document.getElementById('kanji-info').classList.remove('visible');
+        document.getElementById('rating-buttons').classList.remove('visible');
+        document.getElementById('show-answer-btn').style.display = 'block';
+        document.getElementById('kanji-reading').innerHTML = '';
+        document.getElementById('kanji-meaning').textContent = '';
+        document.getElementById('kanji-examples').innerHTML = '';
+        
         this.showCard();
       },
       
@@ -1157,19 +1179,14 @@
         console.log('Pre-fetching data for next card:', nextKanji);
         
         try {
-          // Fetch both APIs in parallel
-          const [kanjiResponse, wordsResponse] = await Promise.all([
-            fetch(`https://kanjiapi.dev/v1/kanji/${nextKanji}`),
-            fetch(`https://kanjiapi.dev/v1/words/${nextKanji}`)
-          ]);
-          
-          const kanjiData = await kanjiResponse.json();
-          const wordsData = await wordsResponse.json();
-          kanjiData.words = wordsData;
+          // Fetch from Jiten API through CORS proxy
+          const jitenUrl = `https://api.jiten.moe/api/kanji/${nextKanji}`;
+          const jitenResponse = await fetch(`https://corsproxy.io/?${encodeURIComponent(jitenUrl)}`);
+          const jitenData = await jitenResponse.json();
           
           this.nextKanjiData = {
             kanji: nextKanji,
-            data: kanjiData
+            data: jitenData
           };
           console.log('Pre-fetch complete for:', nextKanji);
         } catch (error) {
@@ -1195,24 +1212,34 @@
           this.currentKanjiFullData = this.nextKanjiData.data;
           this.nextKanjiData = null; // Clear the cache
           
-          // Display kanji with optional context
+          // Display kanji
+          document.getElementById('current-kanji').textContent = this.currentKanji;
+          document.getElementById('current-kanji').style.display = 'block';
+          
+          // Display optional context
           this.updateContextDisplay();
         } else {
           // No cached data, fetch it now
           console.log('Fetching data for:', this.currentKanji);
           try {
-            // Fetch both APIs in parallel
-            const [kanjiResponse, wordsResponse] = await Promise.all([
-              fetch(`https://kanjiapi.dev/v1/kanji/${this.currentKanji}`),
-              fetch(`https://kanjiapi.dev/v1/words/${this.currentKanji}`)
-            ]);
+            // Fetch from Jiten API through CORS proxy
+            const jitenUrl = `https://api.jiten.moe/api/kanji/${this.currentKanji}`;
+            const jitenResponse = await fetch(`https://corsproxy.io/?${encodeURIComponent(jitenUrl)}`);
+            console.log('Jiten response status:', jitenResponse.status);
             
-            const kanjiData = await kanjiResponse.json();
-            const wordsData = await wordsResponse.json();
-            this.currentKanjiFullData = kanjiData;
-            this.currentKanjiFullData.words = wordsData;
+            if (!jitenResponse.ok) {
+              throw new Error(`Jiten API returned ${jitenResponse.status}`);
+            }
             
-            // Display kanji with optional context
+            const jitenData = await jitenResponse.json();
+            console.log('Jiten data received:', jitenData);
+            this.currentKanjiFullData = jitenData;
+            
+            // Display kanji
+            document.getElementById('current-kanji').textContent = this.currentKanji;
+            document.getElementById('current-kanji').style.display = 'block';
+            
+            // Display optional context
             this.updateContextDisplay();
             
           } catch (error) {
@@ -1256,29 +1283,32 @@
         // Toggle between kanji display and stroke order
         if (showStrokeOrder) {
           document.getElementById('current-kanji').style.display = 'none';
-          document.getElementById('context-display').style.display = 'none';
           document.getElementById('stroke-order').style.display = 'block';
           this.loadStrokeOrder();
         } else {
           document.getElementById('current-kanji').style.display = 'block';
+          document.getElementById('current-kanji').textContent = this.currentKanji;
           document.getElementById('stroke-order').style.display = 'none';
-          // Re-apply context display based on setting
-          this.updateContextDisplay();
         }
+        
+        // Context is independent - update it regardless of kanji vs stroke order
+        this.updateContextDisplay();
         
         let readingHTML = '';
         
         // Show ALL kun readings if checked
-        if (showKun && data.kun_readings && data.kun_readings.length > 0) {
+        // Jiten API uses kunReadings (camelCase, not snake_case)
+        if (showKun && data.kunReadings && data.kunReadings.length > 0) {
           readingHTML += `<div style="margin-bottom: 15px;">
-            <strong>訓読み:</strong> ${data.kun_readings.join(', ')}
+            <strong>訓読み:</strong> ${data.kunReadings.join(', ')}
           </div>`;
         }
         
         // Show ALL on readings if checked
-        if (showOn && data.on_readings && data.on_readings.length > 0) {
+        // Jiten API uses onReadings (camelCase, not snake_case)
+        if (showOn && data.onReadings && data.onReadings.length > 0) {
           readingHTML += `<div style="margin-bottom: 15px;">
-            <strong>音読み:</strong> ${data.on_readings.join(', ')}
+            <strong>音読み:</strong> ${data.onReadings.join(', ')}
           </div>`;
         }
         
@@ -1379,131 +1409,51 @@
       
       getBestRepresentativeWord(kanji, data) {
         console.log('getBestRepresentativeWord called for:', kanji);
-        console.log('Kanji character code:', kanji.charCodeAt(0));
         
-        if (!data || !data.words || data.words.length === 0) {
+        if (!data || !data.topWords || data.topWords.length === 0) {
           console.log('No words available, returning empty array');
-          return []; // Fallback to empty
+          return [];
         }
         
-        console.log('First few words:', data.words.slice(0, 5).map(w => w.variants[0]?.written));
-        
-        // IMPORTANT: Check if any words actually contain our target kanji
-        const wordsWithTargetKanji = data.words.filter(word => {
-          const written = word.variants[0]?.written || '';
-          return written.includes(kanji);
-        });
-        
-        console.log('Words containing target kanji:', wordsWithTargetKanji.length);
-        if (wordsWithTargetKanji.length === 0) {
-          console.log('NO WORDS CONTAIN TARGET KANJI - returning empty array');
-          return []; // Don't show misleading context
-        }
-        
+        // Jiten API returns topWords in frequency order, so just take the first 3
         const examples = [];
         
-        // Priority 1: Verbal form (verb with okurigana ending in う-form)
-        // Look for patterns like: 操る, 輝く, 食べる
-        const verbalForms = wordsWithTargetKanji.filter(word => {
-          const written = word.variants[0]?.written || '';
-          if (!written.startsWith(kanji)) return false;
-          if (written.length < 2 || written.length > 4) return false;
-          const afterKanji = written.substring(1);
-          // Must be hiragana and typically end in う-column (う, く, す, つ, ぬ, ぶ, む, る, ぐ, ず, づ, ぶ, ぷ)
-          return /^[\u3040-\u309F]+$/.test(afterKanji) && 
-                 /[うくすつぬぶむるぐずづぷ]$/.test(written);
-        });
-        
-        if (verbalForms.length > 0) {
-          console.log('Found verbal form:', verbalForms[0].variants[0].written);
-          examples.push(verbalForms[0].variants[0].written);
-        }
-        
-        // Priority 2: Kanji compound (2-kanji word containing our kanji anywhere)
-        if (examples.length < 5) {
-          const compounds = wordsWithTargetKanji.filter(word => {
-            const written = word.variants[0]?.written || '';
-            return written.length === 2 && 
-                   written.includes(kanji) && // Kanji can be anywhere in the compound
-                   !/[\u3040-\u309F]/.test(written) && // No hiragana
-                   !examples.includes(written);
-          });
-          
-          if (compounds.length > 0) {
-            console.log('Found compound:', compounds[0].variants[0].written);
-            examples.push(compounds[0].variants[0].written);
+        for (let i = 0; i < Math.min(3, data.topWords.length); i++) {
+          const word = data.topWords[i];
+          // Use the reading field which has the kanji+kana form
+          if (word.reading) {
+            examples.push(word.reading);
           }
         }
         
-        // Priority 3: Adjectival form (adjective with okurigana, typically ending in い or しい)
-        if (examples.length < 5) {
-          const adjectivalForms = wordsWithTargetKanji.filter(word => {
-            const written = word.variants[0]?.written || '';
-            if (!written.startsWith(kanji)) return false;
-            if (written.length < 2 || written.length > 5) return false;
-            const afterKanji = written.substring(1);
-            // Must be hiragana and end in い (adjective pattern)
-            return /^[\u3040-\u309F]+$/.test(afterKanji) && 
-                   /い$/.test(written) &&
-                   !examples.includes(written);
-          });
-          
-          if (adjectivalForms.length > 0) {
-            console.log('Found adjectival form:', adjectivalForms[0].variants[0].written);
-            examples.push(adjectivalForms[0].variants[0].written);
-          }
-        }
-        
-        // Priority 4: Adverbial form (adverb with okurigana, typically ending in り or く)
-        if (examples.length < 5) {
-          const adverbialForms = wordsWithTargetKanji.filter(word => {
-            const written = word.variants[0]?.written || '';
-            if (!written.startsWith(kanji)) return false;
-            if (written.length < 2 || written.length > 5) return false;
-            const afterKanji = written.substring(1);
-            // Must be hiragana and end in り or く (adverb pattern)
-            return /^[\u3040-\u309F]+$/.test(afterKanji) && 
-                   /[りく]$/.test(written) &&
-                   !examples.includes(written);
-          });
-          
-          if (adverbialForms.length > 0) {
-            console.log('Found adverbial form:', adverbialForms[0].variants[0].written);
-            examples.push(adverbialForms[0].variants[0].written);
-          }
-        }
-        
-        // Priority 5: Single kanji by itself (一, 二, 人)
-        if (examples.length < 5) {
-          const singleKanji = wordsWithTargetKanji.find(word => {
-            const written = word.variants[0]?.written || '';
-            return written === kanji;
-          });
-          if (singleKanji && !examples.includes(kanji)) {
-            console.log('Found single kanji:', kanji);
-            examples.push(kanji);
-          }
-        }
-        
-        console.log('Final examples:', examples);
+        console.log('Top 3 frequent words:', examples);
         return examples;
       },
       
+      parseFurigana(furiganaText) {
+        // Parse Jiten's furigana format: "赤[あか]い" -> "<ruby>赤<rt>あか</rt></ruby>い"
+        if (!furiganaText) return '';
+        
+        return furiganaText.replace(/([^[]+)\[([^\]]+)\]/g, '<ruby>$1<rt>$2</rt></ruby>');
+      },
+      
       getExamples(data) {
-        if (!data.words || data.words.length === 0) {
+        if (!data.topWords || data.topWords.length === 0) {
           return `<p>${this.t('noExamples')}</p>`;
         }
         
-        // Get first 3-5 examples
-        const examples = data.words.slice(0, 5);
+        // Get first 5 examples from Jiten API topWords
+        const examples = data.topWords.slice(0, 5);
         let html = '';
         
         examples.forEach(word => {
-          const meanings = word.meanings.map(m => m.glosses.join(', ')).join('; ');
+          // Jiten kanji endpoint structure: { reading, readingFurigana, mainDefinition }
+          // Use readingFurigana for furigana display
+          const withFurigana = this.parseFurigana(word.readingFurigana || word.reading);
           html += `
             <div class="example-item">
-              <div class="example-ja">${word.variants[0].written} (${word.variants[0].pronounced})</div>
-              <div class="example-en">${meanings}</div>
+              <div class="example-ja">${withFurigana}</div>
+              <div class="example-en">${word.mainDefinition || ''}</div>
             </div>
           `;
         });
@@ -1519,7 +1469,7 @@
       },
       
       updateContextDisplay() {
-        // Update the displayed kanji/word without resetting the card state
+        // Update the displayed context without affecting kanji/stroke order display
         if (!this.currentKanji || !this.currentKanjiFullData) {
           return; // No card loaded yet
         }
@@ -1527,11 +1477,8 @@
         const showInContext = document.getElementById('show-in-context').checked;
         const contextDisplay = document.getElementById('context-display');
         
-        // Always show the isolated kanji
-        document.getElementById('current-kanji').textContent = this.currentKanji;
-        
         if (showInContext) {
-          // Show context words underneath
+          // Show context words
           const contextWords = this.getBestRepresentativeWord(this.currentKanji, this.currentKanjiFullData);
           // Only show if we have context words
           if (contextWords.length > 0) {
