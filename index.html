@@ -338,14 +338,15 @@
 <body>
   <div class="container">
     <header>
-      <h1>漢字マスター</h1>
+      <h1></h1>
       <div class="nav-tabs">
-        <button class="tab-btn active" data-page="grid">Grid View</button>
-        <button class="tab-btn" data-page="study">Study Mode</button>
+        <button class="tab-btn active" data-page="grid"></button>
+        <button class="tab-btn" data-page="study"></button>
       </div>
       <div class="data-controls">
-        <button class="data-btn" id="export-btn">Export Data</button>
-        <button class="data-btn" id="import-btn">Import Data</button>
+        <button class="data-btn" id="language-btn"></button>
+        <button class="data-btn" id="export-btn"></button>
+        <button class="data-btn" id="import-btn"></button>
         <input type="file" id="import-file" accept=".json">
       </div>
     </header>
@@ -355,42 +356,42 @@
       <div class="legend">
         <div class="legend-item">
           <div class="legend-color" style="background: black"></div>
-          <span>Unknown</span>
+          <span></span>
         </div>
         <div class="legend-item">
-          <div class="legend-color" style="background: #333"></div>
-          <span>Learning</span>
+          <div class="legend-color" style="background: #555"></div>
+          <span></span>
         </div>
         <div class="legend-item">
-          <div class="legend-color" style="background: #666"></div>
-          <span>Familiar</span>
+          <div class="legend-color" style="background: #888"></div>
+          <span></span>
         </div>
         <div class="legend-item">
-          <div class="legend-color" style="background: #999"></div>
-          <span>Known</span>
+          <div class="legend-color" style="background: #bbb"></div>
+          <span></span>
         </div>
         <div class="legend-item">
           <div class="legend-color" style="background: white"></div>
-          <span>Mastered</span>
+          <span></span>
         </div>
       </div>
       
       <div class="stats">
         <div class="stat-card">
           <span class="stat-value" id="total-kanji">0</span>
-          <span class="stat-label">Total Kanji</span>
+          <span class="stat-label" id="stat-total"></span>
         </div>
         <div class="stat-card">
           <span class="stat-value" id="mastered-count">0</span>
-          <span class="stat-label">Mastered</span>
+          <span class="stat-label" id="stat-mastered"></span>
         </div>
         <div class="stat-card">
           <span class="stat-value" id="learning-count">0</span>
-          <span class="stat-label">In Progress</span>
+          <span class="stat-label" id="stat-progress"></span>
         </div>
         <div class="stat-card">
           <span class="stat-value" id="unknown-count">0</span>
-          <span class="stat-label">Unknown</span>
+          <span class="stat-label" id="stat-unknown"></span>
         </div>
       </div>
       
@@ -401,42 +402,42 @@
     <div id="study-page" class="page">
       <div class="study-controls">
         <div class="control-group">
-          <label>Filter by Level</label>
+          <label id="label-filter"></label>
           <select id="level-filter" onchange="app.startStudy()">
-            <option value="all">All Levels</option>
-            <option value="unknown">Unknown Only</option>
-            <option value="learning">Learning Only</option>
-            <option value="familiar">Familiar Only</option>
-            <option value="known">Known Only</option>
-            <option value="review">Review Due</option>
+            <option value="all" id="filter-all"></option>
+            <option value="unknown" id="filter-unknown"></option>
+            <option value="learning" id="filter-learning"></option>
+            <option value="familiar" id="filter-familiar"></option>
+            <option value="known" id="filter-known"></option>
+            <option value="review" id="filter-review"></option>
           </select>
         </div>
         <div class="control-group">
-          <label>Sort By</label>
+          <label id="label-sort"></label>
           <select id="sort-option" onchange="app.startStudy()">
-            <option value="random">Random</option>
-            <option value="frequency">Frequency</option>
-            <option value="level">Proficiency Level</option>
+            <option value="random" id="sort-random"></option>
+            <option value="frequency" id="sort-frequency"></option>
+            <option value="level" id="sort-level"></option>
           </select>
         </div>
       </div>
       
       <div class="study-card" id="study-card">
         <div class="study-options" style="margin-bottom: 20px;">
-          <label style="margin-right: 15px; cursor: pointer;">
-            <input type="checkbox" id="show-kun" checked onchange="app.saveTogglePreferences(); app.updateDisplay()"> 訓読み (Kun)
+          <label style="margin-right: 15px; cursor: pointer;" id="label-kun">
+            <input type="checkbox" id="show-kun" checked onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="margin-right: 15px; cursor: pointer;">
-            <input type="checkbox" id="show-on" checked onchange="app.saveTogglePreferences(); app.updateDisplay()"> 音読み (On)
+          <label style="margin-right: 15px; cursor: pointer;" id="label-on">
+            <input type="checkbox" id="show-on" checked onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="margin-right: 15px; cursor: pointer;">
-            <input type="checkbox" id="show-meaning" checked onchange="app.saveTogglePreferences(); app.updateDisplay()"> Meaning
+          <label style="margin-right: 15px; cursor: pointer;" id="label-meaning">
+            <input type="checkbox" id="show-meaning" checked onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="margin-right: 15px; cursor: pointer;">
-            <input type="checkbox" id="show-examples" onchange="app.saveTogglePreferences(); app.updateDisplay()"> Examples
+          <label style="margin-right: 15px; cursor: pointer;" id="label-examples">
+            <input type="checkbox" id="show-examples" onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="cursor: pointer;">
-            <input type="checkbox" id="show-stroke-order" onchange="app.saveTogglePreferences(); app.updateDisplay()"> Stroke Order
+          <label style="cursor: pointer;" id="label-stroke">
+            <input type="checkbox" id="show-stroke-order" onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
         </div>
         
@@ -444,7 +445,6 @@
         <div class="stroke-order" id="stroke-order" style="display: none;"></div>
         
         <button class="show-answer-btn" id="show-answer-btn" onclick="app.showAnswer()">
-          Show Answer
         </button>
         
         <div class="kanji-info" id="kanji-info">
@@ -455,35 +455,139 @@
         
         <div class="rating-buttons" id="rating-buttons">
           <button class="rating-btn" data-rating="0" onclick="app.rateCard(0)">
-            Again<br><small>Learning</small>
+            <span id="rating-again"></span><br><small id="rating-learning"></small>
           </button>
           <button class="rating-btn" data-rating="1" onclick="app.rateCard(1)">
-            Hard<br><small>Familiar</small>
+            <span id="rating-hard"></span><br><small id="rating-familiar"></small>
           </button>
           <button class="rating-btn" data-rating="2" onclick="app.rateCard(2)">
-            Good<br><small>Known</small>
+            <span id="rating-good"></span><br><small id="rating-known"></small>
           </button>
           <button class="rating-btn" data-rating="3" onclick="app.rateCard(3)">
-            Easy<br><small>Mastered</small>
+            <span id="rating-easy"></span><br><small id="rating-mastered"></small>
           </button>
         </div>
       </div>
       
       <div class="no-kanji" id="no-kanji" style="display: none;">
-        <p>No kanji available for the selected filters.</p>
-        <p style="margin-top: 1rem;">Try adjusting your filter settings.</p>
+        <p id="no-kanji-msg"></p>
+        <p style="margin-top: 1rem;" id="no-kanji-hint"></p>
       </div>
     </div>
   </div>
   
   <div class="drop-overlay" id="drop-overlay">
     <div class="drop-message">
-      📁 Drop JSON file to import
     </div>
   </div>
 
   <script>
     const KANJI_LIST = `一二仁三四五伍六七八九十百千万萬億憶兆眺銚挑跳零令冷鈴玲齢歯裁年父釜母子孜孤孫爪孔了兄況弟第弔姉市妹黒紫此柴雌紺甘青晴清請精情靖静赤跡緑録禄黄横白泊柏伯拍迫舶粕口品器吸及扱級喫吹炊噴墳憤吐味未嘆喝渇呪唆嘱属呼唄吟今琴鳴唱昌晶叫赳喚換唯維咲哨号呉娯誤否舌后唇辰娠振震哲啓国図園遠団圏巻券拳回囲井耕丼固個困囚日旧旭曜昨酢作詐映英央暗闇暁尭曙署暑諸暖昇升弁景京影易是書音響郷香晋替暫斬田男胃異累塁畳思留画町丁頂訂庁略酪絡落畔半伴判卑碑鬼魔醜塊魂魏魅魁曲典豊目眼限瞳童瞬睡垂眠民睦県自鼻買罪罰羅罷覇覆腹複復省少炒小看督貝贈曽僧層増憎財才材賭敗賠培倍陪販反板坂飯阪版片貯賄賊購溝構講貧費貴貨化花靴革賃貸代袋賀加架嘉貿賛質賢堅員題願頑顔彦額類須頻歩順預予野頭豆逗顕顧雇月勝脚却胴腰要腕胎台怠膳善膨脂旨指胸臓蔵腸騰胞包泡抱砲飽肥豚肝干汗幹刊胆担脇脅協肺脳悩脈膜服脱肌机飢背肯骨腎火灯災燃然焼炉燥操藻繰煩爆暴煙畑畠水氷湯浩沈枕洋羊洲州酬海悔毎沖中仲忠灘波破流琉硫瀬頼渦禍鍋過洪湾浦補捕輔蒲舗浜兵潟臼興港湖胡沢択泥池地也淀河可何荷川滝竜龍渓鶏浮漏泌秘必滴摘適敵没潜浸侵寝深汚濯洗先溶容浴欲漱涼浄淳潤滑漬温沸湧勇油由汽気汁滋慈磁治渋湿涙戻泣酒潔決演淑叔液混昆濃農満両円漠濁激活括乱辞幸報測則側津漢汎凡帆渡度準滞帯済斉剤添派漫慢滅法去漂票標浅銭践漸渕淵源原減涯消肖渉澄登注柱駐漆沙砂淡談炎泳永詠凝准酸酷告酵孝教老醸壌嬢譲配酔粋木林森樋検験剣険桃逃松訟公榎樺華椿杉桜桧檜椎楢槙真慎柿梨桂圭楠根痕橘桑栃栗榊梅李柳楊揚陽槻規樹析枢枠梁棚朋崩杜槽曹遭樽橋喬僑矯欄蘭村核格各閣客械戒概慨棋期其箕旗欺杯不枚機幾磯畿枯古姑故校交較絞効郊朽極権植殖様棒奉俸桟札柄病模朴条柔集染査枝支社祈祖狙組粗租阻神申伸紳禅戦祝礼福副幅祥詳祐右祉止視初被皮彼披疲裕襟禁袖裸金銀銅同洞桐筒錫鉄迭鋼綱岡剛鉛沿鏡境錦銃充鎖釧鎌針鋭鈍屯鋳寿錠定鍵建健鉢本当鍛段鐘銘名鑑監艦釣鎮土売声喜塾熟壁癖型刑形瓶瓦墨塗墜堕有垣塀屏併壇塚塔搭答城成誠盛坑抗航堀屈掘堤提堰埼奇寄騎崎堺界場域壊懐堪勘甚均埋塩理里現珍珠朱株殊瑞班環還球求救琢王皇望聖玉素毒奏泰麦麹秦着美養姜帳長張幌晃光帽冒人傾頃佳使史借昔錯惜働動休傍任妊荏伝転催信仏払修倫輪伏位優憂傑俊駿峻体俣傷像象債佐左差俗谷俺奄僕撲業価係系件候供共他低抵底邸偵貞禎倒到俳排輩俵表備便偽為値置直依衣伊倭委仰偶遇隅例似以偏遍編篇仮住倶具償賞停亭偉違緯僚遼寮療侮仕士恭在存後行往主役疫術律循盾衛徒走超趙越赴微衝徹撤徳得征正証症政整徐叙除衡御卸街女妃姫臣臨媛援娘嫡妙妖如婿婦好媒婚姻因嫁家稼姓生星性牲産始嫌兼謙妻言誰謀某語吾悟話記己忌紀起議義犠儀論詰吉説税誌志課果菓巣詞司飼訓読訳調彫謹勤謎迷計諾診試式諮資姿次誓警敬驚護誘識織職訴認忍刃討諭愉輸癒謝射身許誕延譜普並設誇謡揺評平坪該劾諏取趣耳恥聴助聯心態能熊息恩憩恋変急忘盲忙亡患悪亜意怒奴努恐慰尉悲非扉斐想相湘箱懸悠憲懲徴懇惑愚憾感慣貫快悼怖布希惧恨惨参恒亘慌荒怪手撃投推拙出擬疑技岐携撮最掃描苗猫批比琵控捨舎掛挿擁措採菜彩掲授受拝拓押拐擦察搾握抜髪友抹末挟峡狭拡広鉱宏紘据居拠処損拷考打折挫座抑接摂扶夫捜探拾揮輝拒巨距拘足促捉躍踊用踏見親新観勧歓覧児克兜競週周近欣断辺刀速束疎運遊遅逆込入通痛途余斜遷逝巡遣送返退造逸遮追遂達進避逮迅逓迎述透選巽遺辻方肪坊妨訪房芳紡防放於族旅施旋北南西東凍棟車軌軸軟軽径茎経軒轄割舟船艇廷庭丹春夏秋萩冬朝潮乾乙韓午昼晩夜雨雲曇雰分紛粉霧務矛霞暇露路雷電雪霊需愛妥熱蒸承煮者煕照昭沼招紹召勲薫黙無舞点門問間簡関閑聞開閉閲悦閥伐闘写与冗冠軍穴字宗示寛宰辛執寒寂宮呂宝密審実窮宣寧害宅託宋寡室官菅管館阜宴賓富冨宜宇天宙抽安案完元翫寅丸究突窃切窒窪窯窓空学覚栄営蛍労掌堂党常哀衰喪裏裂列烈装壮荘製制褒保呆襲卒率豪亮享亨育棄向尚挙誉奮奈奔奪寸耐対封辱尊導道首尋裁載栽圧威灰厄歴暦厚厘席床麻摩磨廊郎朗庫府付符店商康慶庸鷹腐肉廉庶序廃発庵応廟鹿麗痢利疾痴知智虎虚戯虜慮膚盧虐劇屋局尻尾梶毛尿届展履尽尼戸所肩扇合含命企全傘寺時持侍詩待特等魚漁鯨鮮虫蛇蚊蝶融独狼浪良狂猛孟狩守猟猪獅師帥獲穫猶犯猿獄馬駒句駆区欧殴駅騒駄太烏鳥鳩鵬鴻鴈鴨鵜鶴鷲就島嶋嶌牛牟乳物事牧雄離雑難雀羽習翌翼翔翻番藩幡翁茨苑芽牙雅葉芝之乏草早卓芦芭巴把琶蕉茶菌菊葵藍薮蓮連芥介葛菩荻茅蘇菱募慕若暮墓幕蓄畜芸藝葬死薩薦薬楽夢藤茂薄博縛専簿苫占苦糸緒著績責積統給緩納内総聡純絹綿線泉網縄結締帝約的縁継絶色終紙氏紋文斎粛絵会綾繊細続縦従糾縮宿練索緊繁竹築筑篠笹世笛篤筋節即笑算筆肇籍策範米料斗粒笠立端糖唐粧庄粘糧量私稚稔念穏隠和移程呈稲穂恵秒称秩失科種重稿高季秀乃釈尺石礎礁焦研砕確硬更碁基山仙崔岩巌厳敢岸炭峠上下岳丘嶽峰峯逢縫嶺領嵐風凧岬甲崇皿盆盤磐搬般盗盟明益血衆食飲飾餓我既大臭尖奥奨将契犬献状獣力幼勉免励勢劣夕外残殉旬多久工項功攻巧江紅虹貢欠歌款隷敏改敷散数致至赦敦角触解争負危亀医矢短匠匹匿凶函幽刷剰乗創倉剖別削刈劉刻刺帰殺穀殻殿毅又収双隻隣来陣隆降際祭隊随髄院陵稜陸階皆陛陰陶陳障章彰隔陥邦鄭都郡君群部郵邪郁那郭阿弓引弘強弾単弦玄幻弥弱印再卵丈互鼓武飛冊缶弊幣面前`.split('');
+
+    const translations = {
+      ja: {
+        title: '漢字マスター',
+        gridView: 'グリッド表示',
+        studyMode: '学習モード',
+        exportData: 'データ出力',
+        importData: 'データ入力',
+        unknown: '未学習',
+        learning: '学習中',
+        familiar: '慣れた',
+        known: '既知',
+        mastered: '習得済み',
+        allLevels: '全レベル',
+        unknownOnly: '未学習のみ',
+        learningOnly: '学習中のみ',
+        familiarOnly: '慣れたもののみ',
+        knownOnly: '既知のみ',
+        reviewDue: '復習必要',
+        sortBy: '並び替え',
+        random: 'ランダム',
+        frequency: '頻度',
+        proficiency: '習熟度',
+        levelFilter: 'レベルフィルター',
+        kunReading: '訓読み (Kun)',
+        onReading: '音読み (On)',
+        meaning: '意味',
+        examples: '例文',
+        strokeOrder: '筆順',
+        showAnswer: '答えを見る',
+        total: '合計',
+        totalKanji: '合計漢字',
+        inProgress: '学習中',
+        unknownCount: '未学習',
+        dataUnavailable: 'データなし',
+        again: 'もう一度',
+        hard: '難しい',
+        good: '良い',
+        easy: '簡単',
+        noKanji: '選択したフィルターに該当する漢字がありません。',
+        adjustFilters: 'フィルター設定を調整してください。',
+        sessionComplete: '学習セッション完了！',
+        selectFilter: '新しいセッションを開始するにはフィルターを選択してください。',
+        noExamples: '例文はありません',
+        strokeNotAvailable: '筆順データなし',
+        importConfirm: '現在の進捗を置き換えます。続行しますか？',
+        importSuccess: 'データが正常にインポートされました！',
+        importError: 'データのインポートエラー: ',
+        invalidFile: '無効なデータファイル: kanjiProgressがありません',
+        dropJson: 'JSONファイルをドロップしてインポート',
+        dropJsonOnly: 'JSONファイルをドロップしてください',
+        clickToStudy: 'クリックして学習'
+      },
+      en: {
+        title: 'Kanji Master',
+        gridView: 'Grid View',
+        studyMode: 'Study Mode',
+        exportData: 'Export Data',
+        importData: 'Import Data',
+        unknown: 'Unknown',
+        learning: 'Learning',
+        familiar: 'Familiar',
+        known: 'Known',
+        mastered: 'Mastered',
+        allLevels: 'All Levels',
+        unknownOnly: 'Unknown Only',
+        learningOnly: 'Learning Only',
+        familiarOnly: 'Familiar Only',
+        knownOnly: 'Known Only',
+        reviewDue: 'Review Due',
+        sortBy: 'Sort By',
+        random: 'Random',
+        frequency: 'Frequency',
+        proficiency: 'Proficiency Level',
+        levelFilter: 'Level Filter',
+        kunReading: '訓読み (Kun)',
+        onReading: '音読み (On)',
+        meaning: 'Meaning',
+        examples: 'Examples',
+        strokeOrder: 'Stroke Order',
+        showAnswer: 'Show Answer',
+        total: 'Total',
+        totalKanji: 'Total Kanji',
+        inProgress: 'In Progress',
+        unknownCount: 'Unknown',
+        dataUnavailable: 'Data unavailable',
+        again: 'Again',
+        hard: 'Hard',
+        good: 'Good',
+        easy: 'Easy',
+        noKanji: 'No kanji available for the selected filters.',
+        adjustFilters: 'Try adjusting your filter settings.',
+        sessionComplete: 'Study session complete!',
+        selectFilter: 'Select a filter to start a new session.',
+        noExamples: 'No examples available',
+        strokeNotAvailable: 'Stroke order not available',
+        importConfirm: 'This will replace your current progress. Continue?',
+        importSuccess: 'Data imported successfully!',
+        importError: 'Error importing data: ',
+        invalidFile: 'Invalid data file: missing kanjiProgress',
+        dropJson: 'Drop JSON file to import',
+        dropJsonOnly: 'Please drop a JSON file',
+        clickToStudy: 'Click to study'
+      }
+    };
 
     const app = {
       kanjiData: {},
@@ -491,13 +595,104 @@
       studyQueue: [],
       currentIndex: 0,
       currentKanjiFullData: null,
+      language: 'ja',
       
       init() {
+        this.loadLanguage();
         this.loadData();
         this.loadTogglePreferences();
         this.setupEventListeners();
         this.renderGrid();
         this.updateStats();
+        this.applyTranslations();
+      },
+      
+      loadLanguage() {
+        const saved = localStorage.getItem('language');
+        if (saved) {
+          this.language = saved;
+        }
+      },
+      
+      toggleLanguage() {
+        this.language = this.language === 'ja' ? 'en' : 'ja';
+        localStorage.setItem('language', this.language);
+        document.getElementById('language-btn').textContent = this.language === 'ja' ? 'EN' : '日本語';
+        this.applyTranslations();
+        this.renderGrid(); // Re-render grid to update tooltips
+      },
+      
+      t(key) {
+        return translations[this.language][key] || key;
+      },
+      
+      applyTranslations() {
+        // Header
+        document.querySelector('h1').textContent = this.t('title');
+        document.querySelectorAll('.tab-btn')[0].textContent = this.t('gridView');
+        document.querySelectorAll('.tab-btn')[1].textContent = this.t('studyMode');
+        document.getElementById('language-btn').textContent = this.language === 'ja' ? 'EN' : '日本語';
+        document.getElementById('export-btn').textContent = this.t('exportData');
+        document.getElementById('import-btn').textContent = this.t('importData');
+        
+        // Legend
+        const legendItems = document.querySelectorAll('.legend-item span');
+        legendItems[0].textContent = this.t('unknown');
+        legendItems[1].textContent = this.t('learning');
+        legendItems[2].textContent = this.t('familiar');
+        legendItems[3].textContent = this.t('known');
+        legendItems[4].textContent = this.t('mastered');
+        
+        // Study labels
+        document.getElementById('label-filter').textContent = this.t('levelFilter');
+        document.getElementById('label-sort').textContent = this.t('sortBy');
+        
+        // Sort options
+        document.getElementById('sort-random').textContent = this.t('random');
+        document.getElementById('sort-frequency').textContent = this.t('frequency');
+        document.getElementById('sort-level').textContent = this.t('proficiency');
+        
+        // Checkbox labels - need to preserve the checkbox input
+        const kunCheckbox = document.getElementById('show-kun');
+        const onCheckbox = document.getElementById('show-on');
+        const meaningCheckbox = document.getElementById('show-meaning');
+        const examplesCheckbox = document.getElementById('show-examples');
+        const strokeCheckbox = document.getElementById('show-stroke-order');
+        
+        document.getElementById('label-kun').innerHTML = `<input type="checkbox" id="show-kun" ${kunCheckbox.checked ? 'checked' : ''} onchange="app.saveTogglePreferences(); app.updateDisplay()"> ${this.t('kunReading')}`;
+        document.getElementById('label-on').innerHTML = `<input type="checkbox" id="show-on" ${onCheckbox.checked ? 'checked' : ''} onchange="app.saveTogglePreferences(); app.updateDisplay()"> ${this.t('onReading')}`;
+        document.getElementById('label-meaning').innerHTML = `<input type="checkbox" id="show-meaning" ${meaningCheckbox.checked ? 'checked' : ''} onchange="app.saveTogglePreferences(); app.updateDisplay()"> ${this.t('meaning')}`;
+        document.getElementById('label-examples').innerHTML = `<input type="checkbox" id="show-examples" ${examplesCheckbox.checked ? 'checked' : ''} onchange="app.saveTogglePreferences(); app.updateDisplay()"> ${this.t('examples')}`;
+        document.getElementById('label-stroke').innerHTML = `<input type="checkbox" id="show-stroke-order" ${strokeCheckbox.checked ? 'checked' : ''} onchange="app.saveTogglePreferences(); app.updateDisplay()"> ${this.t('strokeOrder')}`;
+        
+        // Show answer button
+        document.getElementById('show-answer-btn').textContent = this.t('showAnswer');
+        
+        // Stats
+        document.getElementById('stat-total').textContent = this.t('totalKanji');
+        document.getElementById('stat-mastered').textContent = this.t('mastered');
+        document.getElementById('stat-progress').textContent = this.t('inProgress');
+        document.getElementById('stat-unknown').textContent = this.t('unknownCount');
+        
+        // Rating buttons
+        document.getElementById('rating-again').textContent = this.t('again');
+        document.getElementById('rating-hard').textContent = this.t('hard');
+        document.getElementById('rating-good').textContent = this.t('good');
+        document.getElementById('rating-easy').textContent = this.t('easy');
+        document.getElementById('rating-learning').textContent = this.t('learning');
+        document.getElementById('rating-familiar').textContent = this.t('familiar');
+        document.getElementById('rating-known').textContent = this.t('known');
+        document.getElementById('rating-mastered').textContent = this.t('mastered');
+        
+        // Update filter counts to use current language
+        this.updateFilterCounts();
+        
+        // No kanji messages
+        document.getElementById('no-kanji-msg').textContent = this.t('noKanji');
+        document.getElementById('no-kanji-hint').textContent = this.t('adjustFilters');
+        
+        // Drop overlay
+        document.querySelector('.drop-message').textContent = this.t('dropJson');
       },
       
       loadTogglePreferences() {
@@ -582,12 +777,12 @@
             
             // Validate the data structure
             if (!data.kanjiProgress) {
-              alert('Invalid data file: missing kanjiProgress');
+              alert(this.t('invalidFile'));
               return;
             }
             
             // Confirm before overwriting
-            if (!confirm('This will replace your current progress. Continue?')) {
+            if (!confirm(this.t('importConfirm'))) {
               return;
             }
             
@@ -605,9 +800,9 @@
             this.renderGrid();
             this.updateStats();
             
-            alert('Data imported successfully!');
+            alert(this.t('importSuccess'));
           } catch (error) {
-            alert('Error importing data: ' + error.message);
+            alert(this.t('importError') + error.message);
           }
           
           // Reset the file input
@@ -618,6 +813,11 @@
       },
       
       setupEventListeners() {
+        // Language button
+        document.getElementById('language-btn').addEventListener('click', () => {
+          this.toggleLanguage();
+        });
+        
         // Export/Import buttons
         document.getElementById('export-btn').addEventListener('click', () => {
           this.exportData();
@@ -666,7 +866,7 @@
             if (file.type === 'application/json' || file.name.endsWith('.json')) {
               this.importData(file);
             } else {
-              alert('Please drop a JSON file');
+              alert(this.t('dropJsonOnly'));
             }
           }
         });
@@ -776,7 +976,7 @@
           const cell = document.createElement('div');
           cell.className = 'kanji-cell ' + this.getLevelClass(kanji);
           cell.textContent = kanji;
-          cell.title = `Click to study: ${kanji}`;
+          cell.title = `${this.t('clickToStudy')}: ${kanji}`;
           cell.addEventListener('click', () => this.studySpecificKanji(kanji));
           grid.appendChild(cell);
         });
@@ -832,6 +1032,45 @@
         document.getElementById('mastered-count').textContent = stats.mastered;
         document.getElementById('learning-count').textContent = stats.learning + stats.familiar + stats.known;
         document.getElementById('unknown-count').textContent = stats.unknown;
+        
+        // Update filter counts
+        this.updateFilterCounts();
+      },
+      
+      updateFilterCounts() {
+        const now = new Date();
+        
+        // Count cards for each filter
+        const counts = {
+          all: KANJI_LIST.length,
+          unknown: 0,
+          learning: 0,
+          familiar: 0,
+          known: 0,
+          review: 0
+        };
+        
+        KANJI_LIST.forEach(kanji => {
+          const data = this.kanjiData[kanji] || { level: 0, lastReview: null, nextReview: null, reviewCount: 0 };
+          
+          if (data.level === 0) counts.unknown++;
+          if (data.level === 1) counts.learning++;
+          if (data.level === 2) counts.familiar++;
+          if (data.level === 3) counts.known++;
+          
+          // Count review due
+          if (data.nextReview && new Date(data.nextReview) <= now) {
+            counts.review++;
+          }
+        });
+        
+        // Update option text with counts using translations
+        document.getElementById('filter-all').textContent = `${this.t('allLevels')} (${counts.all})`;
+        document.getElementById('filter-unknown').textContent = `${this.t('unknownOnly')} (${counts.unknown})`;
+        document.getElementById('filter-learning').textContent = `${this.t('learningOnly')} (${counts.learning})`;
+        document.getElementById('filter-familiar').textContent = `${this.t('familiarOnly')} (${counts.familiar})`;
+        document.getElementById('filter-known').textContent = `${this.t('knownOnly')} (${counts.known})`;
+        document.getElementById('filter-review').textContent = `${this.t('reviewDue')} (${counts.review})`;
       },
       
       
@@ -885,7 +1124,7 @@
           // Session complete - just hide the card
           document.getElementById('study-card').style.display = 'none';
           document.getElementById('no-kanji').style.display = 'block';
-          document.getElementById('no-kanji').innerHTML = '<p>Study session complete! 🎉</p><p style="margin-top: 1rem;">Select a filter to start a new session.</p>';
+          document.getElementById('no-kanji').innerHTML = `<p>${this.t('sessionComplete')}</p><p style="margin-top: 1rem;">${this.t('selectFilter')}</p>`;
           return;
         }
         
@@ -923,7 +1162,7 @@
         
         if (!data) {
           document.getElementById('kanji-reading').textContent = '—';
-          document.getElementById('kanji-meaning').textContent = 'Data unavailable';
+          document.getElementById('kanji-meaning').textContent = this.t('dataUnavailable');
           document.getElementById('kanji-examples').innerHTML = '';
           return;
         }
@@ -1051,13 +1290,13 @@
           }
         } catch (error) {
           console.error('Error loading stroke order:', error);
-          document.getElementById('stroke-order').innerHTML = '<p style="color: #999;">Stroke order not available</p>';
+          document.getElementById('stroke-order').innerHTML = `<p style="color: #999;">${this.t('strokeNotAvailable')}</p>`;
         }
       },
       
       getExamples(data) {
         if (!data.words || data.words.length === 0) {
-          return '<p>No examples available</p>';
+          return `<p>${this.t('noExamples')}</p>`;
         }
         
         // Get first 3-5 examples
