@@ -340,6 +340,151 @@
       border: 4px dashed white;
       border-radius: 10px;
     }
+    
+    /* Dark mode styles - invert all colors */
+    body.dark-mode {
+      background: #1a1a1a;
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode .container {
+      background: #2a2a2a;
+      border-color: #404040;
+    }
+    
+    body.dark-mode .header {
+      background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+      border-bottom-color: #404040;
+    }
+    
+    body.dark-mode .tabs {
+      background: #333;
+      border-color: #404040;
+    }
+    
+    body.dark-mode .tab-btn {
+      background: #2a2a2a;
+      color: #e0e0e0;
+      border-color: #404040;
+    }
+    
+    body.dark-mode .tab-btn.active {
+      background: #1a1a1a;
+      color: #4a9eff;
+      border-bottom-color: #1a1a1a;
+    }
+    
+    body.dark-mode .kanji-grid {
+      background: #2a2a2a;
+    }
+    
+    body.dark-mode .kanji-cell {
+      background: #1a1a1a;
+      color: #000;
+      border-color: #404040;
+    }
+    
+    body.dark-mode .kanji-cell:hover {
+      border-color: #777;
+    }
+    
+    /* Dark mode: All kanji text is black - visibility increases as backgrounds lighten */
+    body.dark-mode .kanji-cell.unknown { background: black; color: black; }
+    body.dark-mode .kanji-cell.learning { background: #555; color: black; }
+    body.dark-mode .kanji-cell.familiar { background: #888; color: black; }
+    body.dark-mode .kanji-cell.known { background: #bbb; color: black; }
+    body.dark-mode .kanji-cell.mastered { background: white; color: black; border: 1px solid #444; }
+    
+    /* Dark mode: All text is black */
+    body.dark-mode .level-0 { background: black; color: black; }
+    body.dark-mode .level-1 { background: #555; color: black; }
+    body.dark-mode .level-2 { background: #888; color: black; }
+    body.dark-mode .level-3 { background: #bbb; color: black; }
+    body.dark-mode .level-review { background: #4a5a6a; color: black; }
+    
+    body.dark-mode .study-page {
+      background: #2a2a2a;
+    }
+    
+    body.dark-mode .study-card {
+      background: #333;
+      border-color: #404040;
+    }
+    
+    body.dark-mode .context-display {
+      color: #999;
+    }
+    
+    body.dark-mode .show-answer-btn {
+      background: #4a9eff;
+      color: white;
+    }
+    
+    body.dark-mode .show-answer-btn:hover {
+      background: #3a8eef;
+    }
+    
+    body.dark-mode .kanji-info {
+      background: #333;
+      border-color: #404040;
+    }
+    
+    body.dark-mode .rating-buttons button {
+      background: #404040;
+      color: #e0e0e0;
+      border-color: #555;
+    }
+    
+    body.dark-mode .rating-buttons button:hover {
+      background: #4a4a4a;
+    }
+    
+    body.dark-mode .rating-buttons .level-0 { background: #555; }
+    body.dark-mode .rating-buttons .level-1 { background: #8b4545; }
+    body.dark-mode .rating-buttons .level-2 { background: #8b8b45; }
+    body.dark-mode .rating-buttons .level-3 { background: #458b45; }
+    
+    body.dark-mode .example-item {
+      border-color: #404040;
+    }
+    
+    body.dark-mode select, body.dark-mode input[type="file"] {
+      background: #333;
+      color: #e0e0e0;
+      border-color: #555;
+    }
+    
+    body.dark-mode button {
+      background: #404040;
+      color: #e0e0e0;
+      border-color: #555;
+    }
+    
+    body.dark-mode button:hover {
+      background: #4a4a4a;
+    }
+    
+    body.dark-mode .legend {
+      background: #333;
+      border-color: #404040;
+    }
+    
+    body.dark-mode .legend-item {
+      border-color: #404040;
+    }
+    
+    body.dark-mode #no-kanji {
+      color: #999;
+    }
+    
+    body.dark-mode .language-toggle {
+      background: #404040;
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode .language-toggle:hover {
+      background: #4a4a4a;
+    }
   </style>
 </head>
 <body>
@@ -352,6 +497,7 @@
       </div>
       <div class="data-controls">
         <button class="data-btn" id="language-btn"></button>
+        <button class="data-btn" id="dark-mode-btn" onclick="app.toggleDarkMode()">🌙</button>
         <button class="data-btn" id="export-btn"></button>
         <button class="data-btn" id="import-btn"></button>
         <input type="file" id="import-file" accept=".json">
@@ -613,6 +759,7 @@
       
       init() {
         this.loadLanguage();
+        this.loadDarkMode();
         this.loadData();
         this.loadTogglePreferences();
         this.setupEventListeners();
@@ -634,6 +781,23 @@
         document.getElementById('language-btn').textContent = this.language === 'ja' ? 'EN' : '日本語';
         this.applyTranslations();
         this.renderGrid(); // Re-render grid to update tooltips
+      },
+      
+      loadDarkMode() {
+        const saved = localStorage.getItem('darkMode');
+        if (saved === 'true') {
+          document.body.classList.add('dark-mode');
+          document.getElementById('dark-mode-btn').textContent = '☀️';
+        }
+      },
+      
+      toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+        
+        // Update icon
+        document.getElementById('dark-mode-btn').textContent = isDark ? '☀️' : '🌙';
       },
       
       t(key) {
@@ -1205,6 +1369,11 @@
         }
         
         this.currentKanji = this.studyQueue[this.currentIndex];
+        
+        // Show loading indicator immediately
+        document.getElementById('current-kanji').textContent = '...';
+        document.getElementById('current-kanji').style.display = 'block';
+        document.getElementById('context-display').style.display = 'none';
         
         // Check if we have pre-fetched data for this card
         if (this.nextKanjiData && this.nextKanjiData.kanji === this.currentKanji) {
