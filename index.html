@@ -902,6 +902,11 @@
             // Auto-start study when switching to study page
             if (page === 'study') {
               this.startStudy();
+            } else {
+              // Clear study card display when leaving study mode
+              document.getElementById('current-kanji').textContent = '';
+              document.getElementById('context-display').textContent = '';
+              document.getElementById('context-display').style.display = 'none';
             }
           });
         });
