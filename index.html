@@ -84,7 +84,13 @@
     
     <!-- Study Page -->
     <div id="study-page" class="page">
-      <div style="margin-bottom: 15px;">
+      <div class="mobile-study-nav">
+        <button onclick="app.switchTab('grid')"><span id="mobile-grid-btn">← Grid</span></button>
+        <span id="mobile-nav-progress" style="font-size: 14px; font-weight: 500;"></span>
+        <button onclick="app.toggleMobileSettings()"><span id="mobile-settings-btn">⚙️</span></button>
+      </div>
+      
+      <div class="filter-toggle-wrapper" style="margin-bottom: 15px;">
         <button id="toggle-filters-btn" onclick="app.toggleFilters()" style="width: auto; padding: 8px 16px;">
           <span id="toggle-filters-text"></span> <span id="toggle-filters-icon">▼</span>
         </button>
