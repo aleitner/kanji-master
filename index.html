@@ -146,7 +146,7 @@
     
     .study-controls {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 20px;
       margin-bottom: 30px;
       padding: 20px;
@@ -345,6 +345,13 @@
       border-radius: 10px;
     }
     
+    .session-progress {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
     /* Dark mode styles - invert all colors */
     body.dark-mode {
       background: #1a1a1a;
@@ -489,6 +496,10 @@
     body.dark-mode .language-toggle:hover {
       background: #4a4a4a;
     }
+    
+    body.dark-mode .session-progress {
+      color: #999;
+    }
   </style>
 </head>
 <body>
@@ -577,7 +588,13 @@
             <option value="level" id="sort-level"></option>
           </select>
         </div>
+        <div class="control-group">
+          <label id="label-limit"></label>
+          <input type="number" id="study-limit" min="1" max="2000" value="20" onchange="app.startStudy()" style="width: 100%;">
+        </div>
       </div>
+      
+      <div class="session-progress" id="session-progress"></div>
       
       <div class="study-card" id="study-card">
         <div class="study-options" style="margin-bottom: 20px;">
@@ -668,6 +685,7 @@
         frequency: '頻度',
         proficiency: '習熟度',
         levelFilter: 'レベルフィルター',
+        studyLimit: '学習数',
         kunReading: '訓読み',
         onReading: '音読み',
         meaning: '意味',
@@ -696,7 +714,8 @@
         invalidFile: '無効なデータファイル: kanjiProgressがありません',
         dropJson: 'JSONファイルをドロップしてインポート',
         dropJsonOnly: 'JSONファイルをドロップしてください',
-        clickToStudy: 'クリックして学習'
+        clickToStudy: 'クリックして学習',
+        progressCounter: '枚目 / '
       },
       en: {
         title: 'Kanji Master',
@@ -720,6 +739,7 @@
         frequency: 'Frequency',
         proficiency: 'Proficiency Level',
         levelFilter: 'Level Filter',
+        studyLimit: 'Study Limit',
         kunReading: 'Kunyomi',
         onReading: 'Onyomi',
         meaning: 'Meaning',
@@ -748,7 +768,8 @@
         invalidFile: 'Invalid data file: missing kanjiProgress',
         dropJson: 'Drop JSON file to import',
         dropJsonOnly: 'Please drop a JSON file',
-        clickToStudy: 'Click to study'
+        clickToStudy: 'Click to study',
+        progressCounter: ' of '
       }
     };
 
@@ -760,16 +781,80 @@
       currentKanjiFullData: null,
       nextKanjiData: null, // Cache for pre-fetched next card
       language: 'ja',
+      savedSession: null, // Track saved study session
       
       init() {
         this.loadLanguage();
         this.loadDarkMode();
         this.loadData();
         this.loadTogglePreferences();
+        this.loadSavedSession();
         this.setupEventListeners();
         this.renderGrid();
         this.updateStats();
         this.applyTranslations();
+      },
+      
+      loadSavedSession() {
+        const saved = localStorage.getItem('savedStudySession');
+        if (saved) {
+          this.savedSession = JSON.parse(saved);
+        }
+      },
+      
+      saveSession() {
+        if (this.studyQueue.length > 0 && this.currentIndex < this.studyQueue.length) {
+          const session = {
+            studyQueue: this.studyQueue,
+            currentIndex: this.currentIndex,
+            filter: document.getElementById('level-filter').value,
+            sort: document.getElementById('sort-option').value,
+            limit: document.getElementById('study-limit').value,
+            timestamp: new Date().toISOString()
+          };
+          localStorage.setItem('savedStudySession', JSON.stringify(session));
+          this.savedSession = session;
+        }
+      },
+      
+      clearSession() {
+        localStorage.removeItem('savedStudySession');
+        this.savedSession = null;
+      },
+      
+      autoResumeOrStart() {
+        // If we have a saved session, restore it automatically
+        if (this.savedSession && this.savedSession.studyQueue.length > 0) {
+          // Restore the session
+          this.studyQueue = this.savedSession.studyQueue;
+          this.currentIndex = this.savedSession.currentIndex;
+          
+          // Restore the controls
+          document.getElementById('level-filter').value = this.savedSession.filter;
+          document.getElementById('sort-option').value = this.savedSession.sort;
+          document.getElementById('study-limit').value = this.savedSession.limit;
+          
+          // Show the study card
+          document.getElementById('study-card').style.display = 'flex';
+          document.getElementById('no-kanji').style.display = 'none';
+          
+          // Clear any old answer data
+          document.getElementById('kanji-info').classList.remove('visible');
+          document.getElementById('rating-buttons').classList.remove('visible');
+          document.getElementById('show-answer-btn').style.display = 'block';
+          document.getElementById('kanji-reading').innerHTML = '';
+          document.getElementById('kanji-meaning').textContent = '';
+          document.getElementById('kanji-examples').innerHTML = '';
+          
+          // Update progress counter
+          this.updateProgressCounter();
+          
+          // Show the card
+          this.showCard();
+        } else {
+          // No saved session, start fresh
+          this.startStudy();
+        }
       },
       
       loadLanguage() {
@@ -785,6 +870,7 @@
         document.getElementById('language-btn').textContent = this.language === 'ja' ? 'EN' : '日本語';
         this.applyTranslations();
         this.renderGrid(); // Re-render grid to update tooltips
+        this.updateProgressCounter(); // Update progress counter
       },
       
       loadDarkMode() {
@@ -828,6 +914,7 @@
         // Study labels
         document.getElementById('label-filter').textContent = this.t('levelFilter');
         document.getElementById('label-sort').textContent = this.t('sortBy');
+        document.getElementById('label-limit').textContent = this.t('studyLimit');
         
         // Sort options
         document.getElementById('sort-random').textContent = this.t('random');
@@ -1074,12 +1161,19 @@
               document.getElementById('rating-buttons').classList.remove('visible');
               document.getElementById('show-answer-btn').style.display = 'block';
               
-              this.startStudy();
+              // Auto-resume if there's a saved session, otherwise start fresh
+              app.autoResumeOrStart();
             } else {
+              // Save session when leaving study mode
+              if (app.studyQueue.length > 0 && app.currentIndex < app.studyQueue.length) {
+                app.saveSession();
+              }
+              
               // Clear study card display when leaving study mode
               document.getElementById('current-kanji').textContent = '';
               document.getElementById('context-display').textContent = '';
               document.getElementById('context-display').style.display = 'none';
+              document.getElementById('session-progress').textContent = '';
             }
           });
         });
@@ -1181,6 +1275,9 @@
       },
       
       studySpecificKanji(kanji) {
+        // Clear saved session when manually selecting a specific kanji
+        this.clearSession();
+        
         // Switch to study mode tab
         this.switchTab('study');
         
@@ -1199,6 +1296,9 @@
         // Show study card
         document.getElementById('study-card').style.display = 'flex';
         document.getElementById('no-kanji').style.display = 'none';
+        
+        // Update progress counter
+        this.updateProgressCounter();
         
         // Load the card
         this.showCard();
@@ -1279,10 +1379,24 @@
         document.getElementById('filter-review').textContent = `${this.t('reviewDue')} (${counts.review})`;
       },
       
+      updateProgressCounter() {
+        const progressElement = document.getElementById('session-progress');
+        if (this.studyQueue.length > 0) {
+          const current = this.currentIndex + 1;
+          const total = this.studyQueue.length;
+          progressElement.textContent = `${current}${this.t('progressCounter')}${total}`;
+        } else {
+          progressElement.textContent = '';
+        }
+      },
       
       async startStudy() {
         const filter = document.getElementById('level-filter').value;
         const sort = document.getElementById('sort-option').value;
+        const limitValue = document.getElementById('study-limit').value;
+        
+        // Clear any saved session when starting a new one
+        this.clearSession();
         
         const now = new Date();
         
@@ -1307,11 +1421,9 @@
         if (this.studyQueue.length === 0) {
           document.getElementById('study-card').style.display = 'none';
           document.getElementById('no-kanji').style.display = 'block';
+          document.getElementById('session-progress').textContent = '';
           return;
         }
-        
-        document.getElementById('study-card').style.display = 'flex';
-        document.getElementById('no-kanji').style.display = 'none';
         
         // Sort queue
         if (sort === 'random') {
@@ -1320,6 +1432,15 @@
           this.studyQueue.sort((a, b) => this.kanjiData[a].level - this.kanjiData[b].level);
         }
         // For frequency, we'll keep the original order (which is roughly by frequency)
+        
+        // Apply study limit
+        const limit = parseInt(limitValue);
+        if (!isNaN(limit) && limit > 0) {
+          this.studyQueue = this.studyQueue.slice(0, limit);
+        }
+        
+        document.getElementById('study-card').style.display = 'flex';
+        document.getElementById('no-kanji').style.display = 'none';
         
         this.currentIndex = 0;
         
@@ -1330,6 +1451,9 @@
         document.getElementById('kanji-reading').innerHTML = '';
         document.getElementById('kanji-meaning').textContent = '';
         document.getElementById('kanji-examples').innerHTML = '';
+        
+        // Update progress counter
+        this.updateProgressCounter();
         
         this.showCard();
       },
@@ -1365,14 +1489,24 @@
       
       async showCard() {
         if (this.currentIndex >= this.studyQueue.length) {
-          // Session complete - just hide the card
+          // Session complete - clear the saved session
+          this.clearSession();
+          
+          // Hide the card
           document.getElementById('study-card').style.display = 'none';
           document.getElementById('no-kanji').style.display = 'block';
           document.getElementById('no-kanji').innerHTML = `<p>${this.t('sessionComplete')}</p><p style="margin-top: 1rem;">${this.t('selectFilter')}</p>`;
+          document.getElementById('session-progress').textContent = '';
           return;
         }
         
+        // Save session after every card move
+        this.saveSession();
+        
         this.currentKanji = this.studyQueue[this.currentIndex];
+        
+        // Update progress counter
+        this.updateProgressCounter();
         
         // Show loading indicator immediately
         document.getElementById('current-kanji').textContent = '...';
