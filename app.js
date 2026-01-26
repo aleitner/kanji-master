@@ -737,6 +737,8 @@ const app = {
     const container = document.getElementById('study-controls-container');
     const toggleBtn = document.getElementById('toggle-filters-btn');
     const modeButtons = document.querySelector('#study-page .study-card > div:first-child');
+    const detailedOptions = document.getElementById('detailed-options');
+    const contextOption = document.querySelector('#study-page .study-options:not(#detailed-options)');
     
     // Check if currently visible
     const isVisible = container.style.display === 'grid' && !container.classList.contains('collapsed');
@@ -747,12 +749,16 @@ const app = {
       container.classList.add('collapsed');
       toggleBtn.style.display = 'none';
       if (modeButtons) modeButtons.classList.remove('mobile-visible');
+      if (detailedOptions) detailedOptions.classList.remove('mobile-visible');
+      if (contextOption) contextOption.classList.remove('mobile-visible');
     } else {
       // Show everything
       container.style.display = 'grid';
       container.classList.remove('collapsed');
       toggleBtn.style.display = 'block';
       if (modeButtons) modeButtons.classList.add('mobile-visible');
+      if (detailedOptions) detailedOptions.classList.add('mobile-visible');
+      if (contextOption) contextOption.classList.add('mobile-visible');
       // Scroll to top to see filters
       setTimeout(() => window.scrollTo(0, 0), 100);
     }
