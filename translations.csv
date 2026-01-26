@@ -42,6 +42,8 @@ frequency,頻度,Frequency
 good,良い,Good
 gradeFilter,学年,Grade Level
 gridView,グリッド表示,Grid View
+mobileGrid,グリッド,Grid
+mobileSettings,設定,Settings
 hard,難しい,Hard
 importConfirm,現在の進捗を置き換えます。続行しますか？,This will replace your current progress. Continue?
 importData,データ入力,Import Data
@@ -69,6 +71,8 @@ selectFilter,新しいセッションを開始するにはフィルターを選�
 sessionComplete,学習セッション完了！,Study session complete!
 showAnswer,答えを見る,Show Answer
 showInContext,文脈で表示,Show in Context
+simpleMode,シンプル,Simple
+detailedMode,詳細,Detailed
 sortBy,並び替え,Sort By
 strokeFilter,画数,Stroke Count
 strokeNotAvailable,筆順データなし,Stroke order not available
