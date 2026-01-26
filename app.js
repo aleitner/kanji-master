@@ -285,6 +285,7 @@ const app = {
     // Study mode buttons
     document.getElementById('simple-mode-text').textContent = this.t('simpleMode');
     document.getElementById('detailed-mode-text').textContent = this.t('detailedMode');
+    this.updateModeButtons();
     
     // Stats
     document.getElementById('stat-total').textContent = this.t('totalKanji');
@@ -742,8 +743,6 @@ const app = {
     if (saved) {
       this.studyMode = saved;
     }
-    // Update button states after DOM loads
-    setTimeout(() => this.updateModeButtons(), 100);
   },
   
   setStudyMode(mode) {
