@@ -63,6 +63,7 @@ h1 {
   background: white;
   border: 1px solid black;
   cursor: pointer;
+  color: black;
 }
 
 .tab-btn.active {
@@ -176,8 +177,108 @@ h1 {
   transform: rotate(-90deg);
 }
 
+#simple-mode-btn,
+#detailed-mode-btn {
+  background: white;
+  color: black;
+  border: 2px solid black;
+}
+
+#simple-mode-btn:hover,
+#detailed-mode-btn:hover {
+  background: #f0f0f0;
+}
+
+#simple-mode-btn.active,
+#detailed-mode-btn.active {
+  background: black;
+  color: white;
+}
+
 /* Mobile responsive layout */
 @media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  h1 {
+    font-size: 20px;
+    text-align: center;
+  }
+  
+  .nav-tabs {
+    justify-content: center;
+  }
+  
+  .tab-btn {
+    flex: 1;
+    padding: 10px;
+  }
+  
+  .data-controls {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .data-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+  
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding: 8px;
+    justify-content: center;
+  }
+  
+  .legend-item {
+    justify-content: flex-start;
+    font-size: 12px;
+  }
+  
+  .legend-color {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+  
+  .stat-card {
+    padding: 10px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+  }
+  
+  .stat-label {
+    font-size: 11px;
+  }
+  
+  .kanji-grid {
+    grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+    gap: 3px;
+    padding: 8px;
+    max-height: none;
+  }
+  
+  .kanji-cell {
+    font-size: 18px;
+  }
+  
   .study-controls {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -192,6 +293,40 @@ h1 {
   .study-card {
     padding: 20px 15px;
     min-height: 300px;
+  }
+  
+  .study-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 15px;
+  }
+  
+  .study-options label {
+    width: 100%;
+    padding: 8px 10px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+  
+  .study-options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-right: 0;
+  }
+  
+  #simple-mode-btn,
+  #detailed-mode-btn {
+    font-size: 14px;
+    padding: 10px 20px !important;
   }
   
   .kanji-display {
@@ -258,6 +393,24 @@ button:disabled {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.study-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.study-options label {
+  margin: 0 !important;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.study-options input[type="checkbox"] {
+  margin-right: 5px;
 }
 
 .kanji-display {
@@ -424,16 +577,6 @@ body.dark-mode .container {
   border-color: #404040;
 }
 
-body.dark-mode .header {
-  background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
-  border-bottom-color: #404040;
-}
-
-body.dark-mode .tabs {
-  background: #333;
-  border-color: #404040;
-}
-
 body.dark-mode .tab-btn {
   background: #2a2a2a;
   color: #e0e0e0;
@@ -467,13 +610,6 @@ body.dark-mode .kanji-cell.familiar { background: #888; color: black; }
 body.dark-mode .kanji-cell.known { background: #bbb; color: black; }
 body.dark-mode .kanji-cell.mastered { background: white; color: black; border: 1px solid #444; }
 
-/* Dark mode: All text is black */
-body.dark-mode .level-0 { background: black; color: black; }
-body.dark-mode .level-1 { background: #555; color: black; }
-body.dark-mode .level-2 { background: #888; color: black; }
-body.dark-mode .level-3 { background: #bbb; color: black; }
-body.dark-mode .level-review { background: #4a5a6a; color: black; }
-
 body.dark-mode .study-page {
   background: #2a2a2a;
 }
@@ -506,6 +642,25 @@ body.dark-mode #toggle-filters-btn:hover {
   background: #4a4a4a;
 }
 
+body.dark-mode #simple-mode-btn,
+body.dark-mode #detailed-mode-btn {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+body.dark-mode #simple-mode-btn:hover,
+body.dark-mode #detailed-mode-btn:hover {
+  background: #333;
+}
+
+body.dark-mode #simple-mode-btn.active,
+body.dark-mode #detailed-mode-btn.active {
+  background: #4a9eff;
+  color: white;
+  border-color: #4a9eff;
+}
+
 body.dark-mode .kanji-info {
   background: #333;
   border-color: #404040;
@@ -520,11 +675,6 @@ body.dark-mode .rating-buttons button {
 body.dark-mode .rating-buttons button:hover {
   background: #4a4a4a;
 }
-
-body.dark-mode .rating-buttons .level-0 { background: #555; }
-body.dark-mode .rating-buttons .level-1 { background: #8b4545; }
-body.dark-mode .rating-buttons .level-2 { background: #8b8b45; }
-body.dark-mode .rating-buttons .level-3 { background: #458b45; }
 
 body.dark-mode .example-item {
   border-color: #404040;
@@ -559,15 +709,14 @@ body.dark-mode #no-kanji {
   color: #999;
 }
 
-body.dark-mode .language-toggle {
-  background: #404040;
-  color: #e0e0e0;
-}
-
-body.dark-mode .language-toggle:hover {
-  background: #4a4a4a;
-}
-
 body.dark-mode .session-progress {
   color: #999;
+}
+
+@media (max-width: 768px) {
+  body.dark-mode .study-options label {
+    background: #333;
+    border-color: #555;
+    color: #e0e0e0;
+  }
 }
