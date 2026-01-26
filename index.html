@@ -581,6 +581,41 @@
           </select>
         </div>
         <div class="control-group">
+          <label id="label-jlpt"></label>
+          <select id="jlpt-filter" onchange="app.startStudy()">
+            <option value="all" id="jlpt-all"></option>
+            <option value="5">N5</option>
+            <option value="4">N4</option>
+            <option value="3">N3</option>
+            <option value="2">N2</option>
+            <option value="1">N1</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label id="label-grade"></label>
+          <select id="grade-filter" onchange="app.startStudy()">
+            <option value="all" id="grade-all"></option>
+            <option value="1">Grade 1</option>
+            <option value="2">Grade 2</option>
+            <option value="3">Grade 3</option>
+            <option value="4">Grade 4</option>
+            <option value="5">Grade 5</option>
+            <option value="6">Grade 6</option>
+            <option value="8">Secondary</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label id="label-strokes"></label>
+          <select id="stroke-filter" onchange="app.startStudy()">
+            <option value="all" id="stroke-all"></option>
+            <option value="1-5">1-5 strokes</option>
+            <option value="6-10">6-10 strokes</option>
+            <option value="11-15">11-15 strokes</option>
+            <option value="16-20">16-20 strokes</option>
+            <option value="21+">21+ strokes</option>
+          </select>
+        </div>
+        <div class="control-group">
           <label id="label-sort"></label>
           <select id="sort-option" onchange="app.startStudy()">
             <option value="random" id="sort-random"></option>
@@ -662,116 +697,62 @@
   <script>
     const KANJI_LIST = `一二仁三四五伍六七八九十百千万萬億憶兆眺銚挑跳零令冷鈴玲齢歯裁年父釜母子孜孤孫爪孔了兄況弟第弔姉市妹黒紫此柴雌紺甘青晴清請精情靖静赤跡緑録禄黄横白泊柏伯拍迫舶粕口品器吸及扱級喫吹炊噴墳憤吐味未嘆喝渇呪唆嘱属呼唄吟今琴鳴唱昌晶叫赳喚換唯維咲哨号呉娯誤否舌后唇辰娠振震哲啓国図園遠団圏巻券拳回囲井耕丼固個困囚日旧旭曜昨酢作詐映英央暗闇暁尭曙署暑諸暖昇升弁景京影易是書音響郷香晋替暫斬田男胃異累塁畳思留画町丁頂訂庁略酪絡落畔半伴判卑碑鬼魔醜塊魂魏魅魁曲典豊目眼限瞳童瞬睡垂眠民睦県自鼻買罪罰羅罷覇覆腹複復省少炒小看督貝贈曽僧層増憎財才材賭敗賠培倍陪販反板坂飯阪版片貯賄賊購溝構講貧費貴貨化花靴革賃貸代袋賀加架嘉貿賛質賢堅員題願頑顔彦額類須頻歩順預予野頭豆逗顕顧雇月勝脚却胴腰要腕胎台怠膳善膨脂旨指胸臓蔵腸騰胞包泡抱砲飽肥豚肝干汗幹刊胆担脇脅協肺脳悩脈膜服脱肌机飢背肯骨腎火灯災燃然焼炉燥操藻繰煩爆暴煙畑畠水氷湯浩沈枕洋羊洲州酬海悔毎沖中仲忠灘波破流琉硫瀬頼渦禍鍋過洪湾浦補捕輔蒲舗浜兵潟臼興港湖胡沢択泥池地也淀河可何荷川滝竜龍渓鶏浮漏泌秘必滴摘適敵没潜浸侵寝深汚濯洗先溶容浴欲漱涼浄淳潤滑漬温沸湧勇油由汽気汁滋慈磁治渋湿涙戻泣酒潔決演淑叔液混昆濃農満両円漠濁激活括乱辞幸報測則側津漢汎凡帆渡度準滞帯済斉剤添派漫慢滅法去漂票標浅銭践漸渕淵源原減涯消肖渉澄登注柱駐漆沙砂淡談炎泳永詠凝准酸酷告酵孝教老醸壌嬢譲配酔粋木林森樋検験剣険桃逃松訟公榎樺華椿杉桜桧檜椎楢槙真慎柿梨桂圭楠根痕橘桑栃栗榊梅李柳楊揚陽槻規樹析枢枠梁棚朋崩杜槽曹遭樽橋喬僑矯欄蘭村核格各閣客械戒概慨棋期其箕旗欺杯不枚機幾磯畿枯古姑故校交較絞効郊朽極権植殖様棒奉俸桟札柄病模朴条柔集染査枝支社祈祖狙組粗租阻神申伸紳禅戦祝礼福副幅祥詳祐右祉止視初被皮彼披疲裕襟禁袖裸金銀銅同洞桐筒錫鉄迭鋼綱岡剛鉛沿鏡境錦銃充鎖釧鎌針鋭鈍屯鋳寿錠定鍵建健鉢本当鍛段鐘銘名鑑監艦釣鎮土売声喜塾熟壁癖型刑形瓶瓦墨塗墜堕有垣塀屏併壇塚塔搭答城成誠盛坑抗航堀屈掘堤提堰埼奇寄騎崎堺界場域壊懐堪勘甚均埋塩理里現珍珠朱株殊瑞班環還球求救琢王皇望聖玉素毒奏泰麦麹秦着美養姜帳長張幌晃光帽冒人傾頃佳使史借昔錯惜働動休傍任妊荏伝転催信仏払修倫輪伏位優憂傑俊駿峻体俣傷像象債佐左差俗谷俺奄僕撲業価係系件候供共他低抵底邸偵貞禎倒到俳排輩俵表備便偽為値置直依衣伊倭委仰偶遇隅例似以偏遍編篇仮住倶具償賞停亭偉違緯僚遼寮療侮仕士恭在存後行往主役疫術律循盾衛徒走超趙越赴微衝徹撤徳得征正証症政整徐叙除衡御卸街女妃姫臣臨媛援娘嫡妙妖如婿婦好媒婚姻因嫁家稼姓生星性牲産始嫌兼謙妻言誰謀某語吾悟話記己忌紀起議義犠儀論詰吉説税誌志課果菓巣詞司飼訓読訳調彫謹勤謎迷計諾診試式諮資姿次誓警敬驚護誘識織職訴認忍刃討諭愉輸癒謝射身許誕延譜普並設誇謡揺評平坪該劾諏取趣耳恥聴助聯心態能熊息恩憩恋変急忘盲忙亡患悪亜意怒奴努恐慰尉悲非扉斐想相湘箱懸悠憲懲徴懇惑愚憾感慣貫快悼怖布希惧恨惨参恒亘慌荒怪手撃投推拙出擬疑技岐携撮最掃描苗猫批比琵控捨舎掛挿擁措採菜彩掲授受拝拓押拐擦察搾握抜髪友抹末挟峡狭拡広鉱宏紘据居拠処損拷考打折挫座抑接摂扶夫捜探拾揮輝拒巨距拘足促捉躍踊用踏見親新観勧歓覧児克兜競週周近欣断辺刀速束疎運遊遅逆込入通痛途余斜遷逝巡遣送返退造逸遮追遂達進避逮迅逓迎述透選巽遺辻方肪坊妨訪房芳紡防放於族旅施旋北南西東凍棟車軌軸軟軽径茎経軒轄割舟船艇廷庭丹春夏秋萩冬朝潮乾乙韓午昼晩夜雨雲曇雰分紛粉霧務矛霞暇露路雷電雪霊需愛妥熱蒸承煮者煕照昭沼招紹召勲薫黙無舞点門問間簡関閑聞開閉閲悦閥伐闘写与冗冠軍穴字宗示寛宰辛執寒寂宮呂宝密審実窮宣寧害宅託宋寡室官菅管館阜宴賓富冨宜宇天宙抽安案完元翫寅丸究突窃切窒窪窯窓空学覚栄営蛍労掌堂党常哀衰喪裏裂列烈装壮荘製制褒保呆襲卒率豪亮享亨育棄向尚挙誉奮奈奔奪寸耐対封辱尊導道首尋裁載栽圧威灰厄歴暦厚厘席床麻摩磨廊郎朗庫府付符店商康慶庸鷹腐肉廉庶序廃発庵応廟鹿麗痢利疾痴知智虎虚戯虜慮膚盧虐劇屋局尻尾梶毛尿届展履尽尼戸所肩扇合含命企全傘寺時持侍詩待特等魚漁鯨鮮虫蛇蚊蝶融独狼浪良狂猛孟狩守猟猪獅師帥獲穫猶犯猿獄馬駒句駆区欧殴駅騒駄太烏鳥鳩鵬鴻鴈鴨鵜鶴鷲就島嶋嶌牛牟乳物事牧雄離雑難雀羽習翌翼翔翻番藩幡翁茨苑芽牙雅葉芝之乏草早卓芦芭巴把琶蕉茶菌菊葵藍薮蓮連芥介葛菩荻茅蘇菱募慕若暮墓幕蓄畜芸藝葬死薩薦薬楽夢藤茂薄博縛専簿苫占苦糸緒著績責積統給緩納内総聡純絹綿線泉網縄結締帝約的縁継絶色終紙氏紋文斎粛絵会綾繊細続縦従糾縮宿練索緊繁竹築筑篠笹世笛篤筋節即笑算筆肇籍策範米料斗粒笠立端糖唐粧庄粘糧量私稚稔念穏隠和移程呈稲穂恵秒称秩失科種重稿高季秀乃釈尺石礎礁焦研砕確硬更碁基山仙崔岩巌厳敢岸炭峠上下岳丘嶽峰峯逢縫嶺領嵐風凧岬甲崇皿盆盤磐搬般盗盟明益血衆食飲飾餓我既大臭尖奥奨将契犬献状獣力幼勉免励勢劣夕外残殉旬多久工項功攻巧江紅虹貢欠歌款隷敏改敷散数致至赦敦角触解争負危亀医矢短匠匹匿凶函幽刷剰乗創倉剖別削刈劉刻刺帰殺穀殻殿毅又収双隻隣来陣隆降際祭隊随髄院陵稜陸階皆陛陰陶陳障章彰隔陥邦鄭都郡君群部郵邪郁那郭阿弓引弘強弾単弦玄幻弥弱印再卵丈互鼓武飛冊缶弊幣面前`.split('');
 
-    const translations = {
-      ja: {
-        title: '漢字マスター',
-        gridView: 'グリッド表示',
-        studyMode: '学習モード',
-        exportData: 'データ出力',
-        importData: 'データ入力',
-        unknown: '未学習',
-        learning: '学習中',
-        familiar: '慣れた',
-        known: '既知',
-        mastered: '習得済み',
-        allLevels: '全レベル',
-        unknownOnly: '未学習のみ',
-        learningOnly: '学習中のみ',
-        familiarOnly: '慣れたもののみ',
-        knownOnly: '既知のみ',
-        reviewDue: '復習必要',
-        sortBy: '並び替え',
-        random: 'ランダム',
-        frequency: '頻度',
-        proficiency: '習熟度',
-        levelFilter: 'レベルフィルター',
-        studyLimit: '学習数',
-        kunReading: '訓読み',
-        onReading: '音読み',
-        meaning: '意味',
-        examples: '例文',
-        strokeOrder: '筆順',
-        showInContext: '文脈で表示',
-        showAnswer: '答えを見る',
-        total: '合計',
-        totalKanji: '合計漢字',
-        inProgress: '学習中',
-        unknownCount: '未学習',
-        dataUnavailable: 'データなし',
-        again: 'もう一度',
-        hard: '難しい',
-        good: '良い',
-        easy: '簡単',
-        noKanji: '選択したフィルターに該当する漢字がありません。',
-        adjustFilters: 'フィルター設定を調整してください。',
-        sessionComplete: '学習セッション完了！',
-        selectFilter: '新しいセッションを開始するにはフィルターを選択してください。',
-        noExamples: '例文はありません',
-        strokeNotAvailable: '筆順データなし',
-        importConfirm: '現在の進捗を置き換えます。続行しますか？',
-        importSuccess: 'データが正常にインポートされました！',
-        importError: 'データのインポートエラー: ',
-        invalidFile: '無効なデータファイル: kanjiProgressがありません',
-        dropJson: 'JSONファイルをドロップしてインポート',
-        dropJsonOnly: 'JSONファイルをドロップしてください',
-        clickToStudy: 'クリックして学習',
-        progressCounter: '枚目 / '
-      },
-      en: {
-        title: 'Kanji Master',
-        gridView: 'Grid View',
-        studyMode: 'Study Mode',
-        exportData: 'Export Data',
-        importData: 'Import Data',
-        unknown: 'Unknown',
-        learning: 'Learning',
-        familiar: 'Familiar',
-        known: 'Known',
-        mastered: 'Mastered',
-        allLevels: 'All Levels',
-        unknownOnly: 'Unknown Only',
-        learningOnly: 'Learning Only',
-        familiarOnly: 'Familiar Only',
-        knownOnly: 'Known Only',
-        reviewDue: 'Review Due',
-        sortBy: 'Sort By',
-        random: 'Random',
-        frequency: 'Frequency',
-        proficiency: 'Proficiency Level',
-        levelFilter: 'Level Filter',
-        studyLimit: 'Study Limit',
-        kunReading: 'Kunyomi',
-        onReading: 'Onyomi',
-        meaning: 'Meaning',
-        examples: 'Examples',
-        strokeOrder: 'Stroke Order',
-        showInContext: 'Show in Context',
-        showAnswer: 'Show Answer',
-        total: 'Total',
-        totalKanji: 'Total Kanji',
-        inProgress: 'In Progress',
-        unknownCount: 'Unknown',
-        dataUnavailable: 'Data unavailable',
-        again: 'Again',
-        hard: 'Hard',
-        good: 'Good',
-        easy: 'Easy',
-        noKanji: 'No kanji available for the selected filters.',
-        adjustFilters: 'Try adjusting your filter settings.',
-        sessionComplete: 'Study session complete!',
-        selectFilter: 'Select a filter to start a new session.',
-        noExamples: 'No examples available',
-        strokeNotAvailable: 'Stroke order not available',
-        importConfirm: 'This will replace your current progress. Continue?',
-        importSuccess: 'Data imported successfully!',
-        importError: 'Error importing data: ',
-        invalidFile: 'Invalid data file: missing kanjiProgress',
-        dropJson: 'Drop JSON file to import',
-        dropJsonOnly: 'Please drop a JSON file',
-        clickToStudy: 'Click to study',
-        progressCounter: ' of '
+    let KANJI_METADATA = {};
+    
+    // Load metadata from external file
+    async function loadMetadata() {
+      try {
+        const response = await fetch('kanji_metadata.json');
+        KANJI_METADATA = await response.json();
+        console.log('Kanji metadata loaded:', Object.keys(KANJI_METADATA).length, 'kanji');
+      } catch (error) {
+        console.error('Failed to load kanji metadata:', error);
       }
-    };
+    }
+    
+    // Load metadata on page load
+    loadMetadata();
+    
+    let translations = { ja: {}, en: {} };
+    
+    // Load translations from CSV file
+    async function loadTranslations() {
+      try {
+        const response = await fetch('translations.csv');
+        const csvText = await response.text();
+        const lines = csvText.split('\n');
+        
+        // Parse CSV properly
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          // Split by comma (handles basic CSV)
+          const parts = line.split(',');
+          if (parts.length >= 3) {
+            const key = parts[0];
+            const ja = parts[1];
+            const en = parts.slice(2).join(','); // In case English has commas
+            
+            translations.ja[key] = ja;
+            translations.en[key] = en;
+          }
+        }
+        
+        console.log('Translations loaded:', Object.keys(translations.ja).length, 'keys');
+        // Re-apply translations after loading
+        if (app && app.applyTranslations) {
+          app.applyTranslations();
+        }
+      } catch (error) {
+        console.error('Failed to load translations:', error);
+      }
+    }
+    
+    // Load translations on page load
+    loadTranslations();
+    
+    
 
     const app = {
       kanjiData: {},
@@ -913,8 +894,16 @@
         
         // Study labels
         document.getElementById('label-filter').textContent = this.t('levelFilter');
+        document.getElementById('label-jlpt').textContent = this.t('jlptFilter');
+        document.getElementById('label-grade').textContent = this.t('gradeFilter');
+        document.getElementById('label-strokes').textContent = this.t('strokeFilter');
         document.getElementById('label-sort').textContent = this.t('sortBy');
         document.getElementById('label-limit').textContent = this.t('studyLimit');
+        
+        // Filter all options
+        document.getElementById('jlpt-all').textContent = this.t('allJlpt');
+        document.getElementById('grade-all').textContent = this.t('allGrade');
+        document.getElementById('stroke-all').textContent = this.t('allStrokes');
         
         // Sort options
         document.getElementById('sort-random').textContent = this.t('random');
@@ -1392,6 +1381,9 @@
       
       async startStudy() {
         const filter = document.getElementById('level-filter').value;
+        const jlptFilter = document.getElementById('jlpt-filter').value;
+        const gradeFilter = document.getElementById('grade-filter').value;
+        const strokeFilter = document.getElementById('stroke-filter').value;
         const sort = document.getElementById('sort-option').value;
         const limitValue = document.getElementById('study-limit').value;
         
@@ -1400,22 +1392,46 @@
         
         const now = new Date();
         
-        // Build queue based on filter
+        // Build queue based on filters
         this.studyQueue = KANJI_LIST.filter(kanji => {
           const data = this.kanjiData[kanji] || { level: 0, lastReview: null, nextReview: null, reviewCount: 0 };
+          const metadata = KANJI_METADATA[kanji] || {};
           
-          // First check the level filter
-          if (filter === 'all') return true;
-          if (filter === 'unknown') return data.level === 0;
-          if (filter === 'learning') return data.level === 1;
-          if (filter === 'familiar') return data.level === 2;
-          if (filter === 'known') return data.level === 3;
+          // Apply proficiency level filter
+          if (filter === 'unknown' && data.level !== 0) return false;
+          if (filter === 'learning' && data.level !== 1) return false;
+          if (filter === 'familiar' && data.level !== 2) return false;
+          if (filter === 'known' && data.level !== 3) return false;
           if (filter === 'review') {
-            // Only show cards that are due for review
             if (!data.nextReview) return false;
-            return new Date(data.nextReview) <= now;
+            if (new Date(data.nextReview) > now) return false;
           }
-          return false;
+          
+          // Apply JLPT filter
+          if (jlptFilter !== 'all') {
+            const jlptLevel = parseInt(jlptFilter);
+            if (!metadata.jlpt || metadata.jlpt !== jlptLevel) return false;
+          }
+          
+          // Apply Grade filter
+          if (gradeFilter !== 'all') {
+            const gradeLevel = parseInt(gradeFilter);
+            if (!metadata.grade || metadata.grade !== gradeLevel) return false;
+          }
+          
+          // Apply Stroke count filter
+          if (strokeFilter !== 'all') {
+            if (!metadata.strokes) return false;
+            const strokes = metadata.strokes;
+            
+            if (strokeFilter === '1-5' && (strokes < 1 || strokes > 5)) return false;
+            if (strokeFilter === '6-10' && (strokes < 6 || strokes > 10)) return false;
+            if (strokeFilter === '11-15' && (strokes < 11 || strokes > 15)) return false;
+            if (strokeFilter === '16-20' && (strokes < 16 || strokes > 20)) return false;
+            if (strokeFilter === '21+' && strokes < 21) return false;
+          }
+          
+          return true;
         });
         
         if (this.studyQueue.length === 0) {
@@ -1430,8 +1446,14 @@
           this.studyQueue.sort(() => Math.random() - 0.5);
         } else if (sort === 'level') {
           this.studyQueue.sort((a, b) => this.kanjiData[a].level - this.kanjiData[b].level);
+        } else if (sort === 'frequency') {
+          // Sort by frequency from metadata
+          this.studyQueue.sort((a, b) => {
+            const freqA = KANJI_METADATA[a]?.frequency || 9999;
+            const freqB = KANJI_METADATA[b]?.frequency || 9999;
+            return freqA - freqB;
+          });
         }
-        // For frequency, we'll keep the original order (which is roughly by frequency)
         
         // Apply study limit
         const limit = parseInt(limitValue);
