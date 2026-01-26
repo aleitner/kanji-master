@@ -287,6 +287,12 @@ const app = {
     document.getElementById('detailed-mode-text').textContent = this.t('detailedMode');
     this.updateModeButtons();
     
+    // Mobile nav buttons
+    const mobileGridBtn = document.getElementById('mobile-grid-btn');
+    const mobileSettingsBtn = document.getElementById('mobile-settings-btn');
+    if (mobileGridBtn) mobileGridBtn.textContent = `← ${this.t('mobileGrid')}`;
+    if (mobileSettingsBtn) mobileSettingsBtn.textContent = '⚙️'; // Keep gear icon
+    
     // Stats
     document.getElementById('stat-total').textContent = this.t('totalKanji');
     document.getElementById('stat-mastered').textContent = this.t('mastered');
@@ -726,6 +732,29 @@ const app = {
     }
   },
   
+  toggleMobileSettings() {
+    // On mobile, show filters temporarily
+    const container = document.getElementById('study-controls-container');
+    const toggleBtn = document.getElementById('toggle-filters-btn');
+    
+    // Check if currently visible
+    const isVisible = container.style.display === 'grid' && !container.classList.contains('collapsed');
+    
+    if (isVisible) {
+      // Hide everything
+      container.style.display = 'none';
+      container.classList.add('collapsed');
+      toggleBtn.style.display = 'none';
+    } else {
+      // Show everything
+      container.style.display = 'grid';
+      container.classList.remove('collapsed');
+      toggleBtn.style.display = 'block';
+      // Scroll to top to see filters
+      setTimeout(() => window.scrollTo(0, 0), 100);
+    }
+  },
+  
   loadFiltersState() {
     const collapsed = localStorage.getItem('filtersCollapsed');
     if (collapsed === 'true') {
@@ -881,13 +910,17 @@ const app = {
   
   updateProgressCounter() {
     const progressElement = document.getElementById('session-progress');
+    const mobileProgress = document.getElementById('mobile-nav-progress');
     if (this.studyQueue.length > 0) {
       const current = this.currentIndex + 1;
       const total = this.studyQueue.length;
       const separator = this.t('progressCounter');
-      progressElement.textContent = `${current}${separator}${total}`;
+      const progressText = `${current}${separator}${total}`;
+      progressElement.textContent = progressText;
+      if (mobileProgress) mobileProgress.textContent = progressText;
     } else {
       progressElement.textContent = '';
+      if (mobileProgress) mobileProgress.textContent = '';
     }
   },
   
