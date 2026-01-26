@@ -74,10 +74,12 @@ const app = {
   nextKanjiData: null, // Cache for pre-fetched next card
   language: 'ja',
   savedSession: null, // Track saved study session
+  studyMode: 'detailed', // 'simple' or 'detailed'
   
   init() {
     this.loadLanguage();
     this.loadDarkMode();
+    this.loadStudyMode();
     this.loadTogglePreferences();
     this.loadSavedSession();
     this.loadFiltersState();
@@ -279,6 +281,10 @@ const app = {
     
     // Show answer button
     document.getElementById('show-answer-btn').textContent = this.t('showAnswer');
+    
+    // Study mode buttons
+    document.getElementById('simple-mode-text').textContent = this.t('simpleMode');
+    document.getElementById('detailed-mode-text').textContent = this.t('detailedMode');
     
     // Stats
     document.getElementById('stat-total').textContent = this.t('totalKanji');
@@ -731,6 +737,44 @@ const app = {
     }
   },
   
+  loadStudyMode() {
+    const saved = localStorage.getItem('studyMode');
+    if (saved) {
+      this.studyMode = saved;
+    }
+    // Update button states after DOM loads
+    setTimeout(() => this.updateModeButtons(), 100);
+  },
+  
+  setStudyMode(mode) {
+    this.studyMode = mode;
+    localStorage.setItem('studyMode', mode);
+    this.updateModeButtons();
+    
+    // Update display if card is showing
+    if (this.currentKanji && document.getElementById('kanji-info').classList.contains('visible')) {
+      this.displayAnswer();
+    }
+  },
+  
+  updateModeButtons() {
+    const simpleBtn = document.getElementById('simple-mode-btn');
+    const detailedBtn = document.getElementById('detailed-mode-btn');
+    const detailedOptions = document.getElementById('detailed-options');
+    
+    if (!simpleBtn || !detailedBtn) return;
+    
+    if (this.studyMode === 'simple') {
+      simpleBtn.classList.add('active');
+      detailedBtn.classList.remove('active');
+      if (detailedOptions) detailedOptions.style.display = 'none';
+    } else {
+      simpleBtn.classList.remove('active');
+      detailedBtn.classList.add('active');
+      if (detailedOptions) detailedOptions.style.display = 'block';
+    }
+  },
+  
   studySpecificKanji(kanji) {
     // Clear saved session when manually selecting a specific kanji
     this.clearSession();
@@ -1072,6 +1116,13 @@ const app = {
       return;
     }
     
+    // Simple mode: just show the most common word
+    if (this.studyMode === 'simple') {
+      this.displaySimpleMode(data);
+      return;
+    }
+    
+    // Detailed mode: existing behavior
     const showKun = document.getElementById('show-kun').checked;
     const showOn = document.getElementById('show-on').checked;
     const showMeaning = document.getElementById('show-meaning').checked;
@@ -1137,6 +1188,43 @@ const app = {
     } else {
       document.getElementById('kanji-examples').style.display = 'none';
     }
+  },
+  
+  displaySimpleMode(data) {
+    // Hide stroke order in simple mode
+    document.getElementById('current-kanji').style.display = 'block';
+    document.getElementById('current-kanji').textContent = this.currentKanji;
+    document.getElementById('stroke-order').style.display = 'none';
+    
+    // Show context if enabled (independent of simple/detailed mode)
+    this.updateContextDisplay();
+    
+    // Get the most common word
+    if (!data.topWords || data.topWords.length === 0) {
+      document.getElementById('kanji-reading').innerHTML = '<div style="color: #999;">No word data available</div>';
+      document.getElementById('kanji-meaning').style.display = 'none';
+      document.getElementById('kanji-examples').style.display = 'none';
+      return;
+    }
+    
+    const topWord = data.topWords[0];
+    
+    // Show the word with furigana
+    const withFurigana = this.parseFurigana(topWord.readingFurigana || topWord.reading);
+    document.getElementById('kanji-reading').innerHTML = `<div style="font-size: 32px; margin-bottom: 15px;">${withFurigana}</div>`;
+    document.getElementById('kanji-reading').style.display = 'block';
+    
+    // Show the word's meaning
+    if (topWord.mainDefinition) {
+      document.getElementById('kanji-meaning').textContent = topWord.mainDefinition;
+      document.getElementById('kanji-meaning').style.display = 'block';
+      document.getElementById('kanji-meaning').style.fontSize = '20px';
+    } else {
+      document.getElementById('kanji-meaning').style.display = 'none';
+    }
+    
+    // Hide examples in simple mode
+    document.getElementById('kanji-examples').style.display = 'none';
   },
   
   async loadStrokeOrder() {
