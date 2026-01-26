@@ -307,6 +307,10 @@ h1 {
   /* Add padding to study page for fixed nav only when active */
   #study-page.active {
     padding-top: 50px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
   
   #toggle-filters-btn {
@@ -414,15 +418,14 @@ h1 {
   }
   
   .study-card {
-    padding: 10px;
+    padding: 5px 10px;
     min-height: 0;
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-around;
     margin-bottom: 0;
     border: none;
-    border-top: 1px solid black;
     overflow: hidden;
   }
   
@@ -431,32 +434,36 @@ h1 {
   }
   
   .kanji-display {
-    font-size: 120px !important;
-    margin: 15px 0;
+    font-size: min(20vw, 100px) !important;
+    margin: 0;
     line-height: 1;
+    flex-shrink: 0;
   }
   
   .context-display {
-    font-size: 22px !important;
-    margin-bottom: 10px;
+    font-size: min(5vw, 20px) !important;
+    margin: 5px 0;
+    flex-shrink: 0;
   }
   
   .kanji-info {
-    flex: 1;
+    flex: 0 1 auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 10px;
+    margin: 5px 0;
+    min-height: 0;
+    overflow: hidden;
   }
   
   .reading {
-    font-size: 20px;
-    margin-bottom: 8px;
+    font-size: min(5vw, 18px);
+    margin: 3px 0;
   }
   
   .meaning {
-    font-size: 16px;
-    margin-bottom: 10px;
+    font-size: min(4vw, 15px);
+    margin: 3px 0;
   }
   
   .examples {
@@ -464,21 +471,23 @@ h1 {
   }
   
   .show-answer-btn {
-    font-size: 16px;
-    padding: 14px;
-    margin: 10px 0;
+    font-size: min(4vw, 16px);
+    padding: min(3vw, 12px);
+    margin: 5px 0;
     font-weight: 600;
+    flex-shrink: 0;
   }
   
   .rating-buttons {
     grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    margin-top: 10px;
+    gap: 4px;
+    margin: 0;
+    flex-shrink: 0;
   }
   
   .rating-btn {
-    padding: 12px 4px;
-    font-size: 11px;
+    padding: min(2.5vw, 10px) 2px;
+    font-size: min(2.8vw, 11px);
     font-weight: 600;
     line-height: 1.2;
   }
