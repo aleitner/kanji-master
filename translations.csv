@@ -1,0 +1,59 @@
+key,ja,en
+adjustFilters,フィルター設定を調整してください。,Try adjusting your filter settings.
+again,もう一度,Again
+allGrade,すべて,All Grades
+allJlpt,すべて,All JLPT
+allLevels,全レベル,All Levels
+allStrokes,すべて,All Strokes
+clickToStudy,クリックして学習,Click to study
+dataUnavailable,データなし,Data unavailable
+dropJson,JSONファイルをドロップしてインポート,Drop JSON file to import
+dropJsonOnly,JSONファイルをドロップしてください,Please drop a JSON file
+easy,簡単,Easy
+examples,例文,Examples
+exportData,データ出力,Export Data
+familiar,慣れた,Familiar
+familiarOnly,慣れたもののみ,Familiar Only
+frequency,頻度,Frequency
+good,良い,Good
+gradeFilter,学年,Grade Level
+gridView,グリッド表示,Grid View
+hard,難しい,Hard
+importConfirm,現在の進捗を置き換えます。続行しますか？,This will replace your current progress. Continue?
+importData,データ入力,Import Data
+importError,データのインポートエラー: ,Error importing data: 
+importSuccess,データが正常にインポートされました！,Data imported successfully!
+inProgress,学習中,In Progress
+invalidFile,無効なデータファイル: kanjiProgressがありません,Invalid data file: missing kanjiProgress
+jlptFilter,JLPT,JLPT Level
+known,既知,Known
+knownOnly,既知のみ,Known Only
+kunReading,訓読み,Kunyomi
+learning,学習中,Learning
+learningOnly,学習中のみ,Learning Only
+levelFilter,レベルフィルター,Level Filter
+mastered,習得済み,Mastered
+meaning,意味,Meaning
+noExamples,例文はありません,No examples available
+noKanji,選択したフィルターに該当する漢字がありません。,No kanji available for the selected filters.
+onReading,音読み,Onyomi
+proficiency,習熟度,Proficiency Level
+progressCounter,枚目 / , of 
+random,ランダム,Random
+reviewDue,復習必要,Review Due
+selectFilter,新しいセッションを開始するにはフィルターを選択してください。,Select a filter to start a new session.
+sessionComplete,学習セッション完了！,Study session complete!
+showAnswer,答えを見る,Show Answer
+showInContext,文脈で表示,Show in Context
+sortBy,並び替え,Sort By
+strokeFilter,画数,Stroke Count
+strokeNotAvailable,筆順データなし,Stroke order not available
+strokeOrder,筆順,Stroke Order
+studyLimit,学習数,Study Limit
+studyMode,学習モード,Study Mode
+title,漢字マスター,Kanji Master
+total,合計,Total
+totalKanji,合計漢字,Total Kanji
+unknown,未学習,Unknown
+unknownCount,未学習,Unknown
+unknownOnly,未学習のみ,Unknown Only
