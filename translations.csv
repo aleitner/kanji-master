@@ -5,6 +5,30 @@ allGrade,すべて,All Grades
 allJlpt,すべて,All JLPT
 allLevels,全レベル,All Levels
 allStrokes,すべて,All Strokes
+grade1,1年生,Grade 1
+grade2,2年生,Grade 2
+grade3,3年生,Grade 3
+grade4,4年生,Grade 4
+grade5,5年生,Grade 5
+grade6,6年生,Grade 6
+grade8,中学校,Secondary
+gridSort,並び替え,Grid Sort
+gridSortDefault,デフォルト（読み順）,Default (Reading Order)
+gridSortFrequency,頻度順,By Frequency
+gridSortGrade,学年順,By Grade Level
+gridSortJlpt,JLPT順,By JLPT Level
+gridSortProficiency,習熟度順,By Proficiency
+gridSortStrokes,画数順,By Stroke Count
+jlpt1,N1,N1
+jlpt2,N2,N2
+jlpt3,N3,N3
+jlpt4,N4,N4
+jlpt5,N5,N5
+strokes1_5,1-5画,1-5 strokes
+strokes6_10,6-10画,6-10 strokes
+strokes11_15,11-15画,11-15 strokes
+strokes16_20,16-20画,16-20 strokes
+strokes21plus,21画以上,21+ strokes
 clickToStudy,クリックして学習,Click to study
 dataUnavailable,データなし,Data unavailable
 dropJson,JSONファイルをドロップしてインポート,Drop JSON file to import
@@ -38,7 +62,7 @@ noExamples,例文はありません,No examples available
 noKanji,選択したフィルターに該当する漢字がありません。,No kanji available for the selected filters.
 onReading,音読み,Onyomi
 proficiency,習熟度,Proficiency Level
-progressCounter,枚目 / , of 
+progressCounter, / , of 
 random,ランダム,Random
 reviewDue,復習必要,Review Due
 selectFilter,新しいセッションを開始するにはフィルターを選択してください。,Select a filter to start a new session.
@@ -52,6 +76,7 @@ strokeOrder,筆順,Stroke Order
 studyLimit,学習数,Study Limit
 studyMode,学習モード,Study Mode
 title,漢字マスター,Kanji Master
+toggleFilters,フィルターを表示/非表示,Show/Hide Filters
 total,合計,Total
 totalKanji,合計漢字,Total Kanji
 unknown,未学習,Unknown
