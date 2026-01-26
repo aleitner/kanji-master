@@ -154,22 +154,34 @@
       <div class="session-progress" id="session-progress"></div>
       
       <div class="study-card" id="study-card">
-        <div class="study-options" style="margin-bottom: 20px;">
-          <label style="margin-right: 15px; cursor: pointer;" id="label-kun">
+        <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 10px;">
+          <button id="simple-mode-btn" onclick="app.setStudyMode('simple')" style="width: auto; padding: 8px 16px;">
+            <span id="simple-mode-text"></span>
+          </button>
+          <button id="detailed-mode-btn" onclick="app.setStudyMode('detailed')" style="width: auto; padding: 8px 16px;">
+            <span id="detailed-mode-text"></span>
+          </button>
+        </div>
+        
+        <div class="study-options" id="detailed-options">
+          <label style="cursor: pointer;" id="label-kun">
             <input type="checkbox" id="show-kun" checked onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="margin-right: 15px; cursor: pointer;" id="label-on">
+          <label style="cursor: pointer;" id="label-on">
             <input type="checkbox" id="show-on" checked onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="margin-right: 15px; cursor: pointer;" id="label-meaning">
+          <label style="cursor: pointer;" id="label-meaning">
             <input type="checkbox" id="show-meaning" checked onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="margin-right: 15px; cursor: pointer;" id="label-examples">
+          <label style="cursor: pointer;" id="label-examples">
             <input type="checkbox" id="show-examples" onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
-          <label style="margin-right: 15px; cursor: pointer;" id="label-stroke">
+          <label style="cursor: pointer;" id="label-stroke">
             <input type="checkbox" id="show-stroke-order" onchange="app.saveTogglePreferences(); app.updateDisplay()">
           </label>
+        </div>
+        
+        <div class="study-options" style="margin-bottom: 20px;">
           <label style="cursor: pointer;" id="label-context">
             <input type="checkbox" id="show-in-context" onchange="app.saveTogglePreferences(); app.updateContextDisplay()">
           </label>
