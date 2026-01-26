@@ -377,6 +377,12 @@ h1 {
     display: none !important; /* Mode buttons container */
   }
   
+  /* Show mode buttons in settings when opened */
+  #study-page .study-card > div:first-child.mobile-visible {
+    display: flex !important;
+    margin-bottom: 15px;
+  }
+  
   #study-page .study-options {
     display: none !important; /* All checkbox toggles */
   }
