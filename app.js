@@ -71,7 +71,6 @@ const app = {
   studyQueue: [],
   currentIndex: 0,
   currentKanjiFullData: null,
-  nextKanjiData: null, // Cache for pre-fetched next card
   language: 'ja',
   savedSession: null, // Track saved study session
   studyMode: 'detailed', // 'simple' or 'detailed'
@@ -356,7 +355,50 @@ const app = {
   loadData() {
     const saved = localStorage.getItem('kanjiProgress');
     if (saved) {
-      this.kanjiData = JSON.parse(saved);
+      const savedData = JSON.parse(saved);
+      
+      // Migration: Remove any kanji that are no longer in KANJI_LIST
+      // This handles cases where kanji were removed from metadata
+      const validKanji = new Set(KANJI_LIST);
+      const cleanedData = {};
+      
+      let removedCount = 0;
+      for (const kanji in savedData) {
+        if (validKanji.has(kanji)) {
+          cleanedData[kanji] = savedData[kanji];
+        } else {
+          removedCount++;
+        }
+      }
+      
+      if (removedCount > 0) {
+        console.log(`Migration: Removed progress for ${removedCount} kanji no longer in metadata`);
+      }
+      
+      this.kanjiData = cleanedData;
+      
+      // Initialize any new kanji that weren't in saved data
+      let addedCount = 0;
+      KANJI_LIST.forEach(kanji => {
+        if (!this.kanjiData[kanji]) {
+          this.kanjiData[kanji] = {
+            level: 0, // 0=unknown, 1=learning, 2=familiar, 3=known, 4=mastered
+            lastReview: null,
+            nextReview: null,
+            reviewCount: 0
+          };
+          addedCount++;
+        }
+      });
+      
+      if (addedCount > 0) {
+        console.log(`Migration: Added ${addedCount} new kanji to progress tracking`);
+      }
+      
+      // Save cleaned/migrated data
+      if (removedCount > 0 || addedCount > 0) {
+        this.saveData();
+      }
     } else {
       // Initialize all kanji as unknown
       KANJI_LIST.forEach(kanji => {
@@ -1034,36 +1076,7 @@ const app = {
     this.showCard();
   },
   
-  async preFetchNextCard() {
-    // Pre-fetch data for the next card in background
-    const nextIndex = this.currentIndex + 1;
-    if (nextIndex >= this.studyQueue.length) {
-      // No next card to pre-fetch
-      this.nextKanjiData = null;
-      return;
-    }
-    
-    const nextKanji = this.studyQueue[nextIndex];
-    console.log('Pre-fetching data for next card:', nextKanji);
-    
-    try {
-      // Fetch from Jiten API through CORS proxy
-      const jitenUrl = `https://api.jiten.moe/api/kanji/${nextKanji}`;
-      const jitenResponse = await fetch(`https://corsproxy.io/?${encodeURIComponent(jitenUrl)}`);
-      const jitenData = await jitenResponse.json();
-      
-      this.nextKanjiData = {
-        kanji: nextKanji,
-        data: jitenData
-      };
-      console.log('Pre-fetch complete for:', nextKanji);
-    } catch (error) {
-      console.error('Error pre-fetching next card:', error);
-      this.nextKanjiData = null;
-    }
-  },
-  
-  async showCard() {
+  showCard() {
     if (this.currentIndex >= this.studyQueue.length) {
       // Session complete - clear the saved session
       this.clearSession();
@@ -1084,54 +1097,33 @@ const app = {
     // Update progress counter
     this.updateProgressCounter();
     
-    // Show loading indicator immediately
-    document.getElementById('current-kanji').textContent = '...';
-    document.getElementById('current-kanji').style.display = 'block';
-    document.getElementById('context-display').style.display = 'none';
-    
-    // Check if we have pre-fetched data for this card
-    if (this.nextKanjiData && this.nextKanjiData.kanji === this.currentKanji) {
-      console.log('Using pre-fetched data for:', this.currentKanji);
-      this.currentKanjiFullData = this.nextKanjiData.data;
-      this.nextKanjiData = null; // Clear the cache
-      
-      // Display kanji
-      document.getElementById('current-kanji').textContent = this.currentKanji;
-      document.getElementById('current-kanji').style.display = 'block';
-      
-      // Display optional context
-      this.updateContextDisplay();
+    // Get kanji data from enriched metadata - instant, no API calls!
+    // All data (meanings, readings, example words) is pre-loaded in KANJI_METADATA
+    const kanjiMeta = KANJI_METADATA[this.currentKanji];
+    if (kanjiMeta) {
+      this.currentKanjiFullData = {
+        meanings: kanjiMeta.meanings || [],
+        readings: {
+          kun: kanjiMeta.kunReadings || [],
+          on: kanjiMeta.onReadings || []
+        },
+        topWords: kanjiMeta.topWords || []
+      };
     } else {
-      // No cached data, fetch it now
-      console.log('Fetching data for:', this.currentKanji);
-      try {
-        // Fetch from Jiten API through CORS proxy
-        const jitenUrl = `https://api.jiten.moe/api/kanji/${this.currentKanji}`;
-        const jitenResponse = await fetch(`https://corsproxy.io/?${encodeURIComponent(jitenUrl)}`);
-        console.log('Jiten response status:', jitenResponse.status);
-        
-        if (!jitenResponse.ok) {
-          throw new Error(`Jiten API returned ${jitenResponse.status}`);
-        }
-        
-        const jitenData = await jitenResponse.json();
-        console.log('Jiten data received:', jitenData);
-        this.currentKanjiFullData = jitenData;
-        
-        // Display kanji
-        document.getElementById('current-kanji').textContent = this.currentKanji;
-        document.getElementById('current-kanji').style.display = 'block';
-        
-        // Display optional context
-        this.updateContextDisplay();
-        
-      } catch (error) {
-        console.error('Error fetching kanji data:', error);
-        this.currentKanjiFullData = null;
-        document.getElementById('current-kanji').textContent = this.currentKanji;
-        document.getElementById('context-display').style.display = 'none';
-      }
+      // Fallback if metadata doesn't exist
+      this.currentKanjiFullData = {
+        meanings: [],
+        readings: { kun: [], on: [] },
+        topWords: []
+      };
     }
+    
+    // Display kanji immediately
+    document.getElementById('current-kanji').textContent = this.currentKanji;
+    document.getElementById('current-kanji').style.display = 'block';
+    
+    // Display optional context
+    this.updateContextDisplay();
     
     // Reset UI state
     document.getElementById('kanji-info').classList.remove('visible');
@@ -1142,9 +1134,6 @@ const app = {
     document.getElementById('current-kanji').style.display = 'block';
     document.getElementById('stroke-order').style.display = 'none';
     document.getElementById('stroke-order').innerHTML = '';
-    
-    // Pre-fetch the NEXT card in background
-    this.preFetchNextCard();
   },
   
   displayAnswer() {
