@@ -1416,45 +1416,117 @@ const app = {
   },
   
   rateCard(rating) {
-    // Update kanji data
-    const data = this.kanjiData[this.currentKanji];
-    data.level = rating;
-    data.lastReview = new Date().toISOString();
-    data.reviewCount++;
+    // SM-2 Algorithm adapted for kanji learning
+    // Rating meanings:
+    // 0 (Again) = Never seen before / Complete blank
+    // 1 (Hard) = Seen before but forgot / Struggling to recall
+    // 2 (Good) = Know a useful reading
+    // 3 (Easy) = Know most readings and meanings
     
-    // Calculate next review (simple SRS)
-    const intervals = [1, 3, 7, 14, 30]; // days
-    const interval = intervals[rating] || 1;
+    const data = this.kanjiData[this.currentKanji];
+    
+    // Initialize SRS fields if first review
+    if (!data.easeFactor) {
+      data.easeFactor = 2.5; // Starting ease
+      data.interval = 0; // Days until next review
+      data.repetitions = 0; // Successful reviews in a row
+    }
+    
+    data.lastReview = new Date().toISOString();
+    data.reviewCount = (data.reviewCount || 0) + 1;
+    
+    // SM-2 quality mapping
+    // Again(0) → 0 (complete failure)
+    // Hard(1) → 2 (incorrect but remembered something)
+    // Good(2) → 4 (correct with effort)
+    // Easy(3) → 5 (perfect recall)
+    const quality = {
+      0: 0,  // Again - never seen / blank
+      1: 2,  // Hard - forgot it (partial recall)
+      2: 4,  // Good - correct answer
+      3: 5   // Easy - perfect, knows multiple readings
+    }[rating] || 4;
+    
+    // SM-2 Algorithm
+    if (quality >= 3) {
+      // Correct response (Hard, Good, or Easy)
+      if (data.repetitions === 0) {
+        // First successful review
+        data.interval = rating === 1 ? 1 : (rating === 2 ? 1 : 4); // Hard=1d, Good=1d, Easy=4d
+      } else if (data.repetitions === 1) {
+        // Second successful review
+        data.interval = rating === 1 ? 3 : (rating === 2 ? 6 : 10); // Hard=3d, Good=6d, Easy=10d
+      } else {
+        // Subsequent reviews - multiply by ease factor
+        data.interval = Math.round(data.interval * data.easeFactor);
+      }
+      data.repetitions++;
+    } else {
+      // Incorrect response (Again) - reset
+      data.repetitions = 0;
+      data.interval = 1; // See again tomorrow
+    }
+    
+    // Adjust ease factor based on quality (SM-2 formula)
+    const oldEase = data.easeFactor;
+    data.easeFactor = oldEase + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+    
+    // Additional adjustments for Hard/Easy
+    if (rating === 1) {
+      // Hard - you're struggling with this one
+      data.interval = Math.max(1, Math.round(data.interval * 0.7)); // 30% reduction
+      data.easeFactor = Math.max(1.3, data.easeFactor - 0.2); // Bigger penalty
+    } else if (rating === 3) {
+      // Easy - you know this well
+      data.interval = Math.round(data.interval * 1.5); // 50% boost
+      data.easeFactor = Math.min(3.0, data.easeFactor + 0.2); // Bigger reward
+    }
+    
+    // Keep ease factor in reasonable bounds
+    data.easeFactor = Math.max(1.3, Math.min(3.0, data.easeFactor));
+    
+    // Cap interval at 365 days (1 year)
+    data.interval = Math.min(365, data.interval);
+    
+    // Calculate next review date
     const nextReview = new Date();
-    nextReview.setDate(nextReview.getDate() + interval);
+    nextReview.setDate(nextReview.getDate() + data.interval);
     data.nextReview = nextReview.toISOString();
+    
+    // Update level for grid display (0-4 scale)
+    if (data.interval === 0 || rating === 0) {
+      data.level = 0; // Unknown (just saw for first time or failed)
+    } else if (data.interval <= 1) {
+      data.level = 1; // Learning (saw yesterday)
+    } else if (data.interval <= 7) {
+      data.level = 2; // Familiar (this week)
+    } else if (data.interval <= 30) {
+      data.level = 3; // Known (this month)
+    } else {
+      data.level = 4; // Mastered (30+ days)
+    }
+    
+    // Debug info
+    console.log(`${this.currentKanji}: Rating=${['Again','Hard','Good','Easy'][rating]}, Interval=${data.interval}d, Ease=${data.easeFactor.toFixed(2)}, Reps=${data.repetitions}`);
     
     this.saveData();
     this.renderGrid();
     this.updateStats();
     
-    // Intelligent spacing: Only reschedule "Again" (0) cards
-    // Cards rated "Hard" (1) or better move forward normally
+    // Only reschedule "Again" (0) cards in current session
+    // These are brand new cards or complete failures
     if (rating === 0) {
       const currentKanji = this.currentKanji;
       
-      // Calculate position to insert: put it back after a few cards (not immediately)
-      // Minimum 3 cards ahead, or 1/3 through remaining cards (whichever is larger)
+      // Put it back after 3-5 cards so you see it again soon
       const remainingCards = this.studyQueue.length - this.currentIndex - 1;
-      const spacingDistance = Math.max(3, Math.floor(remainingCards / 3));
+      const spacingDistance = Math.max(3, Math.min(5, Math.floor(remainingCards / 3)));
       const insertPosition = Math.min(this.currentIndex + spacingDistance, this.studyQueue.length);
       
-      // Remove current card from its position
       this.studyQueue.splice(this.currentIndex, 1);
-      
-      // Insert it back at the calculated position
       this.studyQueue.splice(insertPosition, 0, currentKanji);
-      
-      // Don't increment currentIndex since we removed the current card
-      // The next card will naturally move into the current position
     } else {
-      // Card rated as Hard (1), Familiar (2), Known (3), or Mastered (4)
-      // Move to next card normally - no repeat in this session
+      // Hard/Good/Easy - move to next card (no repeat in session)
       this.currentIndex++;
     }
     
