@@ -1103,17 +1103,16 @@ const app = {
     if (kanjiMeta) {
       this.currentKanjiFullData = {
         meanings: kanjiMeta.meanings || [],
-        readings: {
-          kun: kanjiMeta.kunReadings || [],
-          on: kanjiMeta.onReadings || []
-        },
+        kunReadings: kanjiMeta.kunReadings || [],
+        onReadings: kanjiMeta.onReadings || [],
         topWords: kanjiMeta.topWords || []
       };
     } else {
       // Fallback if metadata doesn't exist
       this.currentKanjiFullData = {
         meanings: [],
-        readings: { kun: [], on: [] },
+        kunReadings: [],
+        onReadings: [],
         topWords: []
       };
     }
