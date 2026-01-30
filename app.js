@@ -1433,9 +1433,9 @@ const app = {
     this.renderGrid();
     this.updateStats();
     
-    // Intelligent spacing: If rated as "Again" (0) or "Learning" (1), 
-    // reschedule this card to appear later in the session
-    if (rating === 0 || rating === 1) {
+    // Intelligent spacing: Only reschedule "Again" (0) cards
+    // Cards rated "Hard" (1) or better move forward normally
+    if (rating === 0) {
       const currentKanji = this.currentKanji;
       
       // Calculate position to insert: put it back after a few cards (not immediately)
@@ -1453,8 +1453,8 @@ const app = {
       // Don't increment currentIndex since we removed the current card
       // The next card will naturally move into the current position
     } else {
-      // Card rated as Familiar (2), Known (3), or Mastered (4)
-      // Move to next card normally
+      // Card rated as Hard (1), Familiar (2), Known (3), or Mastered (4)
+      // Move to next card normally - no repeat in this session
       this.currentIndex++;
     }
     
